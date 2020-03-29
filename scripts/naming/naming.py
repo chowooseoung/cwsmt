@@ -196,10 +196,11 @@ class NamingUI(QtWidgets.QDialog):
 
     @classmethod
     def display(cls):
-        if mc.window(NamingUI.UINAME, exists=True):
-            mc.deleteUI(NamingUI.UINAME)
-        NamingUI.UI = NamingUI()
-        NamingUI.UI.show()
+        with UndoWith():    
+            if mc.window(NamingUI.UINAME, query=True, exists=True):
+                mc.deleteUI(NamingUI.UINAME)
+            ui = NamingUI()
+            ui.show()
 
 if __name__ == "__main__":
     NamingUI.display()

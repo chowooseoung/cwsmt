@@ -40,7 +40,7 @@ class DeleteWidget(QtWidgets.QDialog):
         self.create_connections()
 
     def create_widgets(self):
-        self.confirmLabel = QtWidgets.QLabel("진짜 '{0}'를 삭제하시겠습니까?".format(self.name))
+        self.confirmLabel = QtWidgets.QLabel("렬루 '{0}'를 삭제하시겠습니까?".format(self.name))
         self.okBtn = QtWidgets.QPushButton("ok")
         self.cancelBtn = QtWidgets.QPushButton("cancel")
 
@@ -593,10 +593,11 @@ class MoYangUI(QtWidgets.QDialog):
 
     @classmethod
     def display(cls):
-        if mc.window(MoYangUI.UINAME, query=True, exists=True):
-            mc.deleteUI(MoYangUI.UINAME)
-        ui = MoYangUI()
-        ui.show()
+        with undoWith():
+            if mc.window(MoYangUI.UINAME, query=True, exists=True):
+                mc.deleteUI(MoYangUI.UINAME)
+            ui = MoYangUI()
+            ui.show()
 
 if __name__ == "__main__":
     MoYangUI.display()

@@ -161,7 +161,7 @@ class ZeroOutUI(QtWidgets.QDialog):
     @classmethod
     def display(cls):
         with UndoWith():
-            if mc.window(ZeroOutUI.UINAME, exists=True):
+            if mc.window(ZeroOutUI.UINAME, query=True, exists=True):
                 mc.deleteUI(ZeroOutUI.UINAME)
             ui = ZeroOutUI()
             ui.show()
