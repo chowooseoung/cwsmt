@@ -7,7 +7,6 @@ import sys
 
 from PySide2 import QtWidgets, QtCore, QtGui
 from shiboken2 import wrapInstance
-from functools import partial
 
 def maya_main_window():
     mainPtr = omui.MQtUtil.mainWindow()
@@ -63,7 +62,7 @@ class IconManager(QtWidgets.QDialog):
 
     def create_connections(self):
         self.searchBtn.clicked.connect(self.set_icon)
-        self.iconList.itemClicked.connect(partial(self.print_name))
+        self.iconList.itemClicked.connect(self.print_name)
 
     def set_icon(self): 
         if self.filterLine.text() == "":
@@ -95,7 +94,7 @@ class IconManager(QtWidgets.QDialog):
         elif self.combo.currentIndex() == 1:
             print 'b'
 
-    def print_name(self, e):
+    def print_name(self):
         self.nameLine.setText(self.iconList.currentItem().toolTip())
 
     @classmethod
