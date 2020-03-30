@@ -5,6 +5,7 @@ from shiboken2 import wrapInstance
 
 import maya.cmds as mc
 import maya.OpenMayaUI as omui
+import copy
 
 def maya_main_window():
     mayaWindowPtr = omui.MQtUtil.mainWindow()
@@ -28,10 +29,27 @@ class Naming():
         if (self.new == None) or (self.selection == None):
             mc.warning("confirm set_value")
             return
+            
+        nameCheck = False
+        for i in range(len(self.selection)):
+            newName = "{0}{1}".format(self.new, self.selection[i].split("|")[-1])
+            if mc.objExists(newName):
+                nameCheck = True
+        if nameCheck:
+            mc.warning("already same name node")
+            return
+
         temp = []
-        for i in self.selection:
-            newName = "{0}{1}".format(self.new, i)
-            mc.rename(i, newName)
+        tempName = []
+
+        orig = self.selection
+        for i in range(len(orig)):
+            orig = mc.ls(sl=1, ap=1)
+            tempName.append(mc.rename(orig[i], "q1w2e3{0}".format(i)))
+
+        for i in range(len(tempName)):
+            newName = "{0}{1}".format(self.new, self.selection[i].split("|")[-1])
+            mc.rename(tempName[i], newName)
             temp.append(newName)
         self.selection = temp
 
@@ -39,10 +57,27 @@ class Naming():
         if (self.new == None) or (self.selection == None):
             mc.warning("confirm set_value")
             return
+
+        nameCheck = False
+        for i in range(len(self.selection)):
+            newName = "{0}{1}".format(self.selection[i].split("|")[-1], self.new)
+            if mc.objExists(newName):
+                nameCheck = True
+        if nameCheck:
+            mc.warning("already same name node")
+            return
+
         temp = []
-        for i in self.selection:
-            newName = "{0}{1}".format(i, self.new)
-            mc.rename(i, newName)
+        tempName = []
+
+        orig = self.selection
+        for i in range(len(orig)):
+            orig = mc.ls(sl=1, ap=1)
+            tempName.append(mc.rename(orig[i], "q1w2e3{0}".format(i)))
+
+        for i in range(len(tempName)):
+            newName = "{0}{1}".format(self.selection[i].split("|")[-1], self.new)
+            mc.rename(tempName[i], newName)
             temp.append(newName)
         self.selection = temp
 
@@ -50,22 +85,52 @@ class Naming():
         if (self.new == None) or (self.selection == None) or (self.orig == None):
             mc.warning("confirm set_value")
             return
+        nameCheck = False
+        for i in range(len(self.selection)):
+            if self.orig in self.selection[i].split("|")[-1]:
+                newName = self.selection[i].split("|")[-1].replace(self.orig, self.new)
+                if mc.objExists(newName):
+                    nameCheck = True
+        if nameCheck:
+            mc.warning("already same name node")
+            return
+
         temp = []
-        for i in self.selection:
-            if self.orig in i:
-                newName = i.replace(self.orig, self.new)
-                mc.rename(i, newName)
-                temp.append(newName)
+        tempName = []
+
+        orig = self.selection
+        for i in range(len(orig)):
+            orig = mc.ls(sl=1, ap=1)
+            tempName.append(mc.rename(orig[i], "q1w2e3{0}".format(i)))
+
+        for i in range(len(tempName)):
+            if self.orig in self.selection[i]:
+                newName = self.selection[i].split("|")[-1].replace(self.orig, self.new)
+                temp.append(mc.rename(tempName[i], newName))
+            else:
+                temp.append(mc.rename(tempName[i], self.selection[i].split("|")[-1]))
         self.selection = temp
 
     def renaming(self):
         if (self.new == None) or (self.selection == None) or (self.number == None) or (self.padding == None):
             mc.warning("confirm set_value")
             return
+        nameCheck = False
+        num = self.number
+        for i in range(len(self.selection)):
+            newName = "{0}{1}".format(self.new, str(num).zfill(self.padding))
+            if mc.objExists(newName):
+                nameCheck = True
+            num += 1
+        if nameCheck:
+            mc.warning("already same name node")
+            return
+
         temp = []
         tempName = []
-        for i in self.selection:
-            tempName.append(mc.rename(i, "q1w2e3#"))
+        for i in range(len(self.selection)):
+            self.selection = mc.ls(sl=1, ap=1)
+            tempName.append(mc.rename(self.selection[i], "q1w2e3{0}".format(i)))
 
         for i in tempName:
             newName = "{0}{1}".format(self.new, str(self.number).zfill(self.padding))
@@ -191,7 +256,7 @@ class NamingUI(QtWidgets.QDialog):
                 mc.warning("padding > 0") 
                 return
             self.na.set_value(new=self.newLine.text(), number=self.numberLine.text()
-                                , padding=self.paddingLine.text(), selection=mc.ls(sl=1))
+                                , padding=self.paddingLine.text(), selection=mc.ls(sl=True, ap=True))
             self.na.renaming()
 
     @classmethod

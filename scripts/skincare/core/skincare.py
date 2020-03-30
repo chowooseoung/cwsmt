@@ -83,7 +83,7 @@ def o_n_copy(orig, new, ref=0):
         mc.warning("check joint")
         return False
     origSkinNode = get_skin_node(orig[0])
-    mc.setAttr("{0}.envelope".format(origSkinNode), 0)
+    # mc.setAttr("{0}.envelope".format(origSkinNode), 0)
     for i in new:
         skinNode = get_skin_node(i)
         # new object에 바인드가 되있으면 언바인드
@@ -160,7 +160,7 @@ def n_n_copy(orig, new, ref=0):
             mc.warning("check joint")
             return False
         origSkinNode = get_skin_node(orig[i])
-        mc.setAttr("{0}.envelope".format(origSkinNode), 0)
+        # mc.setAttr("{0}.envelope".format(origSkinNode), 0)
         skinNode = get_skin_node(new[i])
         if skinNode:
             mc.skinCluster(skinNode, e=1, ub=1)
