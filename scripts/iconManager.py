@@ -46,6 +46,9 @@ class IconManager(QtWidgets.QDialog):
         self.nameLine = QtWidgets.QLineEdit()
         self.nameLine.setReadOnly(True)
 
+        QtWidgets.QShortcut(QtGui.QKeySequence("enter"), self.searchBtn, self.set_icon)
+        QtWidgets.QShortcut(QtGui.QKeySequence("return"), self.searchBtn, self.set_icon)
+
     def create_layouts(self):   
         mainLayout = QtWidgets.QGridLayout(self)
         filterLayout = QtWidgets.QFormLayout()

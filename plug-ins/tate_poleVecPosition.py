@@ -14,6 +14,7 @@ class TatePoleVecPosition(om.MPxNode):
     second_obj = None
     offset_obj = None
     outputParentInverseMatrix_obj = None
+    zerodiv_obj = None
 
     outputTranslate_obj = None
     outputTX_obj = None

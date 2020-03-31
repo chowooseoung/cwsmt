@@ -401,6 +401,7 @@ class MoYangUI(QtWidgets.QDialog):
         
         return: None
         '''
+        print self.directoryBtn.text()
         path = self.directoryBtn.text()
         os.startfile(path)
         

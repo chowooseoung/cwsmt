@@ -40,10 +40,16 @@ def replace_con(newcon):
             mc.select(tempGrp[i], add=1)
             mc.parent(r=1, s=1)
             mc.delete(dupList[i][x])
+    crv = []
     for i in range(len(selection)):
-        scaleValue = sc.scale_value(selection[i], tempGrp[i])
+        dup = []
+        for x in range(len(selShapeList[i])):
+            dup.append(mc.duplicateCurve(selShapeList[i][x], ch=0)[0])
+        crv = combine_curve_shape(dup)
+        scaleValue = sc.scale_value(crv, tempGrp[i])
         mc.xform(tempGrp[i], s=scaleValue, ws=1)
         mc.makeIdentity(tempGrp[i], a=1, t=0, r=0, s=1, n=0, pn=1)
+        mc.delete(crv)
 
     for i in selShapeList:
         mc.delete(i)
@@ -173,8 +179,8 @@ def mirror_con(scale=(-1, 1, 1), left="L", right="R"):
                 mc.setAttr("{0}.overrideColorRGB".format(revReplaceShapeList[i][x]), shapeColor[i][0], shapeColor[i][1], shapeColor[i][2])
     mc.select(selection)
 
-def combine_curve_shape():
-    selection = mc.ls(sl=1)
+def combine_curve_shape(crv):
+    selection = list(crv)
     mc.makeIdentity(selection, a=1, t=1, r=1, s=1, n=0, pn=1)
     em = mc.group(n="combineCurve", em=1)
     for i in selection:
@@ -183,6 +189,7 @@ def combine_curve_shape():
         mc.parent(shapeNode, em, r=1, s=1)
         mc.delete(i)
     mc.select(em)
+    return em
 
 def get_shape(crv, name):
     '''

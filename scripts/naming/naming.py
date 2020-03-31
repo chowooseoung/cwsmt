@@ -5,7 +5,6 @@ from shiboken2 import wrapInstance
 
 import maya.cmds as mc
 import maya.OpenMayaUI as omui
-import copy
 
 def maya_main_window():
     mayaWindowPtr = omui.MQtUtil.mainWindow()
