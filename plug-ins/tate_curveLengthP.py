@@ -21,9 +21,13 @@ class TateCurveLengthP(om.MPxNode):
         if plug == TateCurveLengthP.outputParameter:
 
             inputCrv = data.inputValue(TateCurveLengthP.inputCurve).asNurbsCurve()
-            inputLen = data.inputValue(TateCurveLengthP.inputLength).asFloat()
-            
+            inputLen = data.inputValue(TateCurveLengthP.inputLength).asDouble()
+
+            crvFn = om.MFnNurbsCurve(inputCrv)
+            outputPValue = crvFn.findLengthFromParam(inputLen)
+
             outputP = data.inputValue(TateCurveLengthP.outputParameter).asFloat()
+            outputP.setDouble(outputPValue)
 
             data.setClean(plug)
 
