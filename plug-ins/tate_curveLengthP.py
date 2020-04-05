@@ -22,12 +22,12 @@ class TateCurveLengthP(om.MPxNode):
 
             inputCrv = data.inputValue(TateCurveLengthP.inputCurve).asNurbsCurve()
             inputLen = data.inputValue(TateCurveLengthP.inputLength).asDouble()
+            if not inputCrv.isNull():
+                crvFn = om.MFnNurbsCurve(inputCrv)
+                outputPValue = crvFn.findParamFromLength(inputLen)
 
-            crvFn = om.MFnNurbsCurve(inputCrv)
-            outputPValue = crvFn.findLengthFromParam(inputLen)
-
-            outputP = data.inputValue(TateCurveLengthP.outputParameter).asFloat()
-            outputP.setDouble(outputPValue)
+                outputP = data.outputValue(TateCurveLengthP.outputParameter)
+                outputP.setDouble(outputPValue)
 
             data.setClean(plug)
 
@@ -90,5 +90,11 @@ if __name__ == "__main__":
     mc.evalDeferred("if mc.pluginInfo('{0}', q=True, loaded=True): mc.unloadPlugin('{0}')".format(plugin_name))
     mc.evalDeferred("if not mc.pluginInfo('{0}', q=True, loaded=True): mc.loadPlugin('{0}')".format(plugin_name))
 
-    mc.evalDeferred("mc.createNode('tate_curveLengthP')")
+    mc.evalDeferred("curveLength = mc.createNode('tate_curveLengthP')")
+    mc.evalDeferred("pointonCurve = mc.createNode('pointOnCurveInfo')")
+    mc.evalDeferred("loc = mc.spaceLocator()[0]")
+
+    mc.evalDeferred("mc.connectAttr('{0}.outputParameter'.format(curveLength), '{0}.parameter'.format(pointonCurve))")
+    mc.evalDeferred("mc.connectAttr('{0}.inputCurve'.format(curveLength), '{0}.inputCurve'.format(pointonCurve))")
+    mc.evalDeferred("mc.connectAttr('{0}.result.position'.format(pointonCurve), '{0}.t'.format(loc))")
     

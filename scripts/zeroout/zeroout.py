@@ -14,7 +14,7 @@ def do_zeroout(addname="GRP", snap=False, child=False, objType="transfrom", last
     return: zerooutGRP
     '''
     suffixName = "_{0}".format(addname)
-    selection = mc.ls(sl=1)
+    selection = mc.ls(sl=True)
     
     nameList = []    
     for i in range(len(selection)):
@@ -32,11 +32,11 @@ def do_zeroout(addname="GRP", snap=False, child=False, objType="transfrom", last
     
     zerooutGrp = []
     for i in range(len(selection)):
-        parentName = mc.listRelatives(selection[i], p=1)
+        parentName = mc.listRelatives(selection[i], p=True)
         name = nameList[i]
         
         if objType == "transform":
-            zerooutGrp.append(mc.group(em=1, n=name))
+            zerooutGrp.append(mc.group(em=True, n=name))
         elif objType == "joint":
             zerooutGrp.append(mc.createNode("joint", n=name))
         elif objType == "locator":
@@ -60,13 +60,13 @@ def do_zeroout(addname="GRP", snap=False, child=False, objType="transfrom", last
                                     [-1.0, -1.0, 1.0]))
             zerooutGrp.append(mc.rename(temp, name))
 
-        t = mc.xform(selection[i], q=1, t=1, ws=1)
-        ro = mc.xform(selection[i], q=1, ro=1, ws=1)
-        s = mc.xform(selection[i], q=1, s=1, ws=1)
+        t = mc.xform(selection[i], q=True, t=True, ws=True)
+        ro = mc.xform(selection[i], q=True, ro=True, ws=True)
+        s = mc.xform(selection[i], q=True, s=True, ws=True)
 
-        mc.xform(zerooutGrp[i], t=t, ws=1)
-        mc.xform(zerooutGrp[i], ro=ro, ws=1)
-        mc.xform(zerooutGrp[i], s=s, ws=1)
+        mc.xform(zerooutGrp[i], t=t, ws=True)
+        mc.xform(zerooutGrp[i], ro=ro, ws=True)
+        mc.xform(zerooutGrp[i], s=s, ws=True)
         if snap == False:
             if child == False:
                 if parentName == None:
@@ -86,10 +86,10 @@ def maya_main_window():
 class UndoWith():
     
     def __enter__(self):
-        mc.undoInfo(ock=1)
+        mc.undoInfo(ock=True)
 
     def __exit__(self, *args):
-        mc.undoInfo(cck=1)
+        mc.undoInfo(cck=True)
 
 class ZeroOutUI(QtWidgets.QDialog):
 
@@ -121,7 +121,7 @@ class ZeroOutUI(QtWidgets.QDialog):
 
         self.objTypeComboBox = QtWidgets.QComboBox()
         self.objTypeComboBox.addItems(self.objType)
-        self.zeroOutBtn =QtWidgets.QPushButton("zero out")
+        self.zeroOutBtn = QtWidgets.QPushButton("zero out")
 
     def create_layouts(self):
         mainLayout = QtWidgets.QFormLayout(self)

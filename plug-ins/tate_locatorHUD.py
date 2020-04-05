@@ -1,16 +1,11 @@
 import maya.cmds as mc
 import maya.api.OpenMaya as om
 
-'''
-tate_locatorHUD creates a locator. This locator renders the attributes in the viewport.
-'''
 
 def maya_useNewAPI():
     pass
 
 class TateLocatorHUDNode(om.MPxNode):
-    """
-    """
     TYPE_NAME = "tate_locatorHUD"
     TYPE_ID = om.MTypeId(0x77770002)
     
