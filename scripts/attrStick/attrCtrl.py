@@ -43,7 +43,6 @@ class AttrControl(object):
             if self.type == "string":
                 i.setAttr(ln, self.string)
         
-
     def edit_attr(self):
         pass
     
