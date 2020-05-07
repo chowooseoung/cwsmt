@@ -18,22 +18,34 @@ class AttrStickUI(QtWidgets.QDialog):
     def __init__(self, parent=maya_main_window()):
         super(AttrStickUI, self).__init__(parent=parent)
 
+        self.attrCtrl = ac.AttrControl()
+
+        self.actions()
+        self.setupUi()
+        self.connections()
+
+    def setupUi(self):
         self.setObjectName(AttrStickUI.UINAME)
         self.setWindowTitle(AttrStickUI.UINAME)
         self.setFixedWidth(450)
-        self.attrCtrl = ac.AttrControl()
 
-        self.defaultTree = MyTreeWidget()
-        self.defaultTree.setHeaderLabel("transform attr")
-        self.defaultTree.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode(3))
+        self.daTree = MyTreeWidget()
+        self.daTree.setHeaderLabel("transform attr")
+        self.daTree.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode(3))
+        self.daTree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.daTree.customContextMenuRequested.connect(lambda x, y=self.daTree, z=self.refreshAction :self.show_context_menu(x, y, z))
         
-        self.keyTree = MyTreeWidget()
-        self.keyTree.setHeaderLabel("userDefine, keyable")
-        self.keyTree.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode(3))
+        self.kaTree = MyTreeWidget()
+        self.kaTree.setHeaderLabel("userDefine, keyable")
+        self.kaTree.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode(3))
+        self.kaTree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.kaTree.customContextMenuRequested.connect(lambda x, y=self.kaTree, z=self.refreshAction:self.show_context_menu(x, y, z))
 
         self.udTree = MyTreeWidget()
         self.udTree.setHeaderLabel("userDefined")
         self.udTree.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode(3))
+        self.udTree.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.udTree.customContextMenuRequested.connect(lambda x, y=self.udTree, z=self.refreshAction :self.show_context_menu(x, y, z))
 
         self.upBtn = QtWidgets.QPushButton("up")
         self.upBtn.setFixedWidth(60)
@@ -44,15 +56,23 @@ class AttrStickUI(QtWidgets.QDialog):
         self.lnLine = QtWidgets.QLineEdit()
         self.typeLabel = QtWidgets.QLabel("type :")
         self.typeLine = QtWidgets.QLineEdit()
+        completer = QtWidgets.QCompleter()
+        QtGui.QStringListModel(["bool", ])
+        
+        self.typeLine.setCompleter(completer)
 
         self.keyableCheck = QtWidgets.QCheckBox("keyable")
         self.keyableCheck.setChecked(True)
         self.lockCheck = QtWidgets.QCheckBox("lock")
 
-        self.hideBtn = QtWidgets.QPushButton("hide")
-        self.hideBtn.setFixedWidth(60)
-        self.lockBtn = QtWidgets.QPushButton("lock")
-        self.lockBtn.setFixedWidth(60)
+        self.hideBtn = QtWidgets.QPushButton("H")
+        self.hideBtn.setFixedWidth(25)
+        self.unHideBtn = QtWidgets.QPushButton("UH")
+        self.unHideBtn.setFixedWidth(25)
+        self.lockBtn = QtWidgets.QPushButton("L")
+        self.lockBtn.setFixedWidth(25)
+        self.unLockBtn = QtWidgets.QPushButton("UL")
+        self.unLockBtn.setFixedWidth(25)
 
         self.hxvCheck = QtWidgets.QCheckBox("has max value")
         self.hnvCheck = QtWidgets.QCheckBox("has min value")
@@ -80,16 +100,18 @@ class AttrStickUI(QtWidgets.QDialog):
         upDownLayout.addWidget(self.upBtn)
         upDownLayout.addWidget(self.downBtn)
         keyLayout = QtWidgets.QVBoxLayout()
-        keyLayout.addWidget(self.keyTree)
+        keyLayout.addWidget(self.kaTree)
         keyLayout.addLayout(upDownLayout)
         udLayout = QtWidgets.QVBoxLayout()
         udLayout.addWidget(self.udTree)
         lockHideLayout = QtWidgets.QHBoxLayout()
         lockHideLayout.addWidget(self.hideBtn)
+        lockHideLayout.addWidget(self.unHideBtn)
         lockHideLayout.addWidget(self.lockBtn)
+        lockHideLayout.addWidget(self.unLockBtn)
         udLayout.addLayout(lockHideLayout)
 
-        viewLayout.addWidget(self.defaultTree)
+        viewLayout.addWidget(self.daTree)
         viewLayout.addLayout(keyLayout)
         viewLayout.addLayout(udLayout)
         mainLayout.addLayout(viewLayout)
@@ -127,27 +149,39 @@ class AttrStickUI(QtWidgets.QDialog):
         hLayout.addLayout(attr1Layout)
         hLayout.addWidget(self.enumView)
         mainLayout.addLayout(hLayout)
-        self.connections()
 
     def connections(self):
         self.upBtn.clicked.connect(self.refresh_tree)
         self.addBtn.clicked.connect(self.add_attr_btn)
+        self.hideBtn.clicked.connect(self.hide_btn)
+        self.lockBtn.clicked.connect(self.lock_btn)
+
+        self.refreshAction.triggered.connect(self.refresh_tree)
+
+    def actions(self):
+        self.refreshAction = QtWidgets.QAction("refresh")
+
+    def show_context_menu(self, point, widget, action):
+        context_menu = QtWidgets.QMenu()
+        context_menu.addAction(action)
+
+        context_menu.exec_(widget.mapToGlobal(point))
 
     def refresh_tree(self):
         sel = pm.ls(selection=True)
-        self.defaultTree.clear()
-        self.keyTree.clear()
+        self.daTree.clear()
+        self.kaTree.clear()
         self.udTree.clear()
         if sel == []:
             return
         dfList, kaList, udList = self.attrCtrl.get_attr_list(sel[0])
         for i in dfList:
             item = self.create_item(i)  
-            self.defaultTree.addTopLevelItem(item)
+            self.daTree.addTopLevelItem(item)
 
         for i in kaList:
             item = self.create_item(i)  
-            self.keyTree.addTopLevelItem(item)
+            self.kaTree.addTopLevelItem(item)
         
         for i in udList:
             item = self.create_item(i, key=False)  
@@ -184,7 +218,78 @@ class AttrStickUI(QtWidgets.QDialog):
     def delete_attr_btn(self):
         with UndoWith():
             print 'c'
-
+    
+    def up_btn(self):
+        pass
+    def down_btn(self):
+        pass
+    def hide_btn(self):
+        with UndoWith():
+            at = []
+            dtItem = self.daTree.selectedItems()
+            if len(dtItem):
+                for i in dtItem:
+                    at.append(i.text(0))
+                    check = 0
+            kaItem = self.kaTree.selectedItems()
+            if len(kaItem):
+                for i in kaItem:
+                    at.append(i.text(0))
+                    check = 1
+            udItem = self.udTree.selectedItems()
+            if len(udItem):
+                for i in udItem:
+                    at.append(i.text(0))
+                    check = 2
+            sel = pm.ls(sl=1)
+            for i in sel:
+                for x in at:
+                    attr = pm.ls("{0}.{1}".format(i, x))[0]
+                    try:
+                        attr.getChildren()
+                    except:
+                        if self.keyableCheck.isChecked():
+                            attr.setKeyable(True)
+                        else:
+                            attr.setKeyable(False)
+        self.refresh_tree()
+        if check == 0:
+            print self.daTree.model().checkIndex()
+            # pprint.pprint( dir(self.daTree.model()))
+            # self.daTree.setCurrentItem(dtItem[0])
+        elif check == 1:
+            self.kaTree.selectedItems(at)
+        elif check == 2:
+            self.udTree.selectedItems(at)
+    def lock_btn(self):
+        with UndoWith():
+            at = []
+            check = []
+            if len(self.daTree.selectedItems()):
+                for i in self.daTree.selectedItems():
+                    at.append(i.text(0))
+                    check.append(0)
+            if len(self.kaTree.selectedItems()):
+                for i in self.kaTree.selectedItems():
+                    at.append(i.text(0))
+                    check.append(1)
+            if len(self.udTree.selectedItems()):
+                for i in self.udTree.selectedItems():
+                    at.append(i.text(0))
+                    check.append(2)
+            sel = pm.ls(sl=1)
+            for i in sel:
+                for x in at:
+                    attr = pm.ls("{0}.{1}".format(i, x))[0]
+                    try:
+                        attr.getChildren()
+                    except:
+                        if self.lockCheck.isChecked():
+                            attr.setLocked(True)
+                        else:
+                            attr.setLocked(False)
+        self.refresh_tree()
+                
     @classmethod
     def display(cls):
         if pm.window(cls.UINAME, query=True, exists=True):

@@ -48,9 +48,9 @@ class AttrControl(object):
     
     def get_attr_list(self, node):
         if isinstance(node, pm.nodetypes.Transform):
-            dfAttr = [node.attr("tx"), node.attr("tx"), node.attr("tx")
-                    , node.attr("rx"), node.attr("rx"), node.attr("rx")
-                    , node.attr("sx"), node.attr("sx"), node.attr("sx")
+            dfAttr = [node.attr("tx"), node.attr("ty"), node.attr("tz")
+                    , node.attr("rx"), node.attr("ry"), node.attr("rz")
+                    , node.attr("sx"), node.attr("sy"), node.attr("sz")
                     , node.attr("v")]
         else:
             dfAttr = []
@@ -76,12 +76,18 @@ class AttrControl(object):
                 if True not in check:
                     if i.getParent() in kaAttr:
                         kaAttr.remove(i.getParent())
-                    udAttr.append(i.getParent())
+                    if i.getParent() not in udAttr:
+                        udAttr.append(i.getParent())
                 elif False not in check:
                     if i.getParent() in udAttr:
                         udAttr.remove(i.getParent())
-                else: 
-                    udAttr.append(i.getParent())
+                    if i.getParent() not in kaAttr:
+                        kaAttr.append(i.getParent())
+                else:
+                    if i.getParent() not in kaAttr:
+                        kaAttr.append(i.getParent())
+                    if i.getParent() not in udAttr:
+                        udAttr.append(i.getParent())
             elif not i.isKeyable():
                 udAttr.append(i)
         udAttr = list(set(udAttr))
@@ -124,18 +130,18 @@ class AttrControl(object):
         self.dv = None
 
     def print_attr_attr(self):
-        strFormat = '%-10s%-10s%-10s'
-        print "------------------ attr_attr ------------------"
-        print strFormat % ("ln : "    , self.longName , type(self.longName))
-        print strFormat % ("sn : "    , self.shortName, type(self.shortName))
-        print strFormat % ("type : "  , self.type     , type(self.type))
-        print strFormat % ("hxv : "   , self.hxv      , type(self.hxv))
-        print strFormat % ("hnv : "   , self.hnv      , type(self.hnv))
-        print strFormat % ("min : "   , self.minValue , type(self.minValue))
-        print strFormat % ("max : "   , self.maxvalue , type(self.maxvalue))
-        print strFormat % ("en : "    , self.enumDict , type(self.enumDict))
-        print strFormat % ("key : "   , self.keyable  , type(self.keyable))
-        print strFormat % ("lock : "  , self.lock     , type(self.lock))
-        print strFormat % ("string : ", self.string   , type(self.string))
-        print strFormat % ("dv : "    , self.dv       , type(self.dv))
-        print "-----------------------------------------------"
+        strFormat = '| {:<8}:  {:<10}|  {:<15} |'
+        print "\n{:-^45}".format(" attr_attr ")
+        print strFormat.format("ln "    , self.longName , type(self.longName))
+        print strFormat.format("sn "    , self.shortName, type(self.shortName))
+        print strFormat.format("type "  , self.type     , type(self.type))
+        print strFormat.format("hxv "   , self.hxv      , type(self.hxv))
+        print strFormat.format("hnv "   , self.hnv      , type(self.hnv))
+        print strFormat.format("min "   , self.minValue , type(self.minValue))
+        print strFormat.format("max "   , self.maxvalue , type(self.maxvalue))
+        print strFormat.format("en "    , self.enumDict , type(self.enumDict))
+        print strFormat.format("key "   , self.keyable  , type(self.keyable))
+        print strFormat.format("lock "  , self.lock     , type(self.lock))
+        print strFormat.format("string ", self.string   , type(self.string))
+        print strFormat.format("dv "    , self.dv       , type(self.dv))
+        print "{:-^45}\n".format("")

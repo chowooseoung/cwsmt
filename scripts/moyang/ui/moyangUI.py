@@ -80,9 +80,6 @@ class MoYangUI(QtWidgets.QDialog):
         self.create_layouts()
         self.create_connections()
         
-        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_context_menu)
-
         self.init_directory()
         self.search_directory()
         
@@ -119,6 +116,8 @@ class MoYangUI(QtWidgets.QDialog):
         self.shapeListWidget.setIconSize(QtCore.QSize(size, size))
         self.shapeListWidget.setResizeMode(QtWidgets.QListWidget.Adjust)
         self.shapeListWidget.setGridSize(QtCore.QSize(size+4, size+12))
+        self.shapeListWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.shapeListWidget.customContextMenuRequested.connect(self.show_context_menu)
         
         self.customColorBtn = QtWidgets.QPushButton()
         self.customColorBtn.setFixedSize(57,57)
@@ -298,7 +297,7 @@ class MoYangUI(QtWidgets.QDialog):
         context_menu = QtWidgets.QMenu()
         context_menu.addAction(self.moyangLoadAction)
 
-        context_menu.exec_(self.mapToGlobal(point))
+        context_menu.exec_(self.shapeListWidget.mapToGlobal(point))
 
     def init_directory(self):
         '''
