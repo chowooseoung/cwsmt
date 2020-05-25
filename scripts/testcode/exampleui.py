@@ -1,11 +1,14 @@
 ################################################################
-# common/gui/workspacecontrol.py using code
+# common/gui/workspacecontrol.py 
+# common/gui/uiloader.py 
+# test code
 ################################################################
 from PySide2 import QtWidgets, QtCore, QtGui
 from common.gui.workspacecontrol import CustomUI
 from common.gui.workspacecontrol import WorkspaceControl
+from common.gui.uiloader import UiLoader
 
-import pymel.core as pm
+import os
 
 
 class Test1UI(QtWidgets.QDialog, CustomUI):
@@ -117,3 +120,43 @@ class Test2UI(QtWidgets.QDialog):
         super(Test2UI, self).hideEvent(e)
 
         print 'hideEvent'
+
+
+class Test3UI(QtWidgets.QDialog):
+
+    UI = os.path.join(os.path.dirname(__file__), 'test3ui.ui')
+
+
+    def __init__(self):
+        super(Test3UI, self).__init__()
+
+        UiLoader().loadUi(self.UI, self)
+
+    def showEvent(self, e):
+        super(Test2UI, self).showEvent(e)
+
+        print 'showEvent'
+            
+    def closeEvent(self, e):
+        super(Test2UI, self).closeEvent(e)
+
+        print 'closeEvent'
+    
+    def hideEvent(self, e):
+        super(Test2UI, self).hideEvent(e)
+
+        print 'hideEvent'
+
+if __name__ == "__main__":
+    """ Run the application. """
+    from PySide2.QtWidgets import (QApplication, QTableWidget, QTableWidgetItem,
+                                   QAbstractItemView)
+    import sys
+
+    sys.path.append('D:\\maya')
+    app = QApplication(sys.argv)
+
+    test3ui = Test3UI()
+    test3ui.show()
+
+    sys.exit(app.exec_())

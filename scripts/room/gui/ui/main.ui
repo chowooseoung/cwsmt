@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>645</width>
-    <height>521</height>
+    <width>561</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,7 +15,28 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QListWidget" name="listWidget"/>
+    <widget class="QListWidget" name="listWidget">
+     <property name="styleSheet">
+      <string notr="true">#listWidget {
+	background-color:rgba(0, 0, 0, 0.1);
+	border:none;
+	border-radius:8px;
+}
+</string>
+     </property>
+     <property name="autoScroll">
+      <bool>false</bool>
+     </property>
+     <property name="movement">
+      <enum>QListView::Static</enum>
+     </property>
+     <property name="resizeMode">
+      <enum>QListView::Adjust</enum>
+     </property>
+     <property name="viewMode">
+      <enum>QListView::IconMode</enum>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

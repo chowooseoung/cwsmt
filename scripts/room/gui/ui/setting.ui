@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>524</width>
-    <height>302</height>
+    <width>541</width>
+    <height>343</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -26,13 +26,23 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
          <property name="styleSheet">
           <string notr="true">QPushButton#scriptsConfig { 
-	qproperty-icon:url(:/room/icons8-settings-50.png)
+	background-color:rgba(0, 0, 0, 0);
+	qproperty-icon:url(:/room/icons8-settings-50.png);
 }</string>
          </property>
          <property name="text">
           <string/>
+         </property>
+         <property name="autoDefault">
+          <bool>true</bool>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -161,13 +171,20 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
          <property name="styleSheet">
           <string notr="true">QPushButton#pluginsConfig { 
-	qproperty-icon:url(:/room/icons8-settings-50.png)
+	background-color:rgba(0, 0, 0, 0);
+	qproperty-icon:url(:/room/icons8-settings-50.png);
 }</string>
          </property>
          <property name="text">
           <string/>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -290,13 +307,20 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
          <property name="styleSheet">
           <string notr="true">QPushButton#addTeamConfig { 
-	qproperty-icon:url(:/room/icons8-settings-50.png)
+	background-color:rgba(0, 0, 0, 0);
+	qproperty-icon:url(:/room/icons8-settings-50.png);
 }</string>
          </property>
          <property name="text">
           <string/>
+         </property>
+         <property name="flat">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
