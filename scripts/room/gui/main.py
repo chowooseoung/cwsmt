@@ -43,10 +43,10 @@ class RoomUI(QtWidgets.QDialog):
         for i in range(30):
             preferenceButton = QtWidgets.QWidget()
             UiLoader().loadUi(uifile=self.PREFERENCEUI, baseinstance=preferenceButton)
-            preferenceButton.resize(32, 32)
+            preferenceButton.resize(128, 128)
             
             item = QtWidgets.QListWidgetItem()
-            item.setSizeHint(QtCore.QSize(68, 68))
+            item.setSizeHint(QtCore.QSize(128, 128))
 
             self.listWidget.addItem(item)
             self.listWidget.setItemWidget(item, preferenceButton)

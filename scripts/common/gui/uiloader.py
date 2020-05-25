@@ -6,9 +6,7 @@ class UiLoader(QtUiTools.QUiLoader):
     _baseinstance = None
 
     def createWidget(self, classname, parent=None, name=''):
-        if parent is None and self._baseinstance
-        
-         is not None:
+        if parent is None and self._baseinstance is not None:
             widget = self._baseinstance
         else:
             widget = super(UiLoader, self).createWidget(classname, parent, name)
