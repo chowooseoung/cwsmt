@@ -1,0 +1,10 @@
+{
+    "maya": {
+        "shelfPath": "D:\\maya\\scripts\\room\\maya", 
+        "pluginsPath": "D:\\maya\\scripts\\room\\maya\\plug-ins", 
+        "scriptsPath": "D:\\maya\\scripts\\room\\maya\\scripts"
+    }, 
+    "tools": [
+        "maya"
+    ]
+}
