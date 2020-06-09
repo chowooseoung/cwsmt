@@ -112,15 +112,14 @@ class RoomUI(QtWidgets.QDialog):
             for i in range(len(shelfList)):
                 json = self.load_json(shelfList[i])
                 btn = QtWidgets.QToolButton()
-                btn.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
-                btn.setIcon(QtGui.QIcon(json['icon']))
+                # btn.setToolButtonStyle(QtCore.Qt.ToolButtonTextBesideIcon)
+                # btn.setIcon(QtGui.QIcon(json['icon']))
                 btn.setText(shelfList[i])
                 btn.setCheckable(True)
                 btn.setChecked(False)
                 btn.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
                 item = ShelfItem(name=shelfList[i], runCode=None, toolTip=None, icon=None, label=shelfList[i], widget=btn)
                 self.shelfModel.appendRow(item)
-            print('init_listview')
             return
         else:
             pass
