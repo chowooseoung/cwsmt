@@ -1,9 +1,7 @@
-#-*- coding:utf-8 -*-
-
 from PySide2 import QtWidgets, QtCore, QtGui
 from shiboken2 import wrapInstance
 
-import maya.cmds as mc
+import pymel.core as pm
 import maya.OpenMayaUI as omui
 
 def maya_main_window():
@@ -13,10 +11,10 @@ def maya_main_window():
 class UndoWith():
 
     def __enter__(self):
-        mc.undoInfo(ock=1)
+        pm.undoInfo(ock=1)
 
     def __exit__(self, *args):
-        mc.undoInfo(cck=1)
+        pm.undoInfo(cck=1)
 
 
 class Naming():
@@ -25,118 +23,41 @@ class Naming():
         self.set_value(orig=orig, new=new, selection=selection, padding=padding, number=number)
 
     def prefix(self):
-        if (self.new == None) or (self.selection == None):
-            mc.warning("confirm set_value")
-            return
-            
-        nameCheck = False
-        for i in range(len(self.selection)):
-            newName = "{0}{1}".format(self.new, self.selection[i].split("|")[-1])
-            if mc.objExists(newName):
-                nameCheck = True
-        if nameCheck:
-            mc.warning("already same name node")
-            return
-
-        temp = []
-        tempName = []
-
-        orig = self.selection
-        for i in range(len(orig)):
-            orig = mc.ls(sl=1, ap=1)
-            tempName.append(mc.rename(orig[i], "q1w2e3{0}".format(i)))
-
-        for i in range(len(tempName)):
-            newName = "{0}{1}".format(self.new, self.selection[i].split("|")[-1])
-            mc.rename(tempName[i], newName)
-            temp.append(newName)
-        self.selection = temp
+        for i in self.selection:
+            name = i.addPrefix('{0}_'.format(self.new))
+            if pm.PyNode(name).objExists():
+                new = i.rename(name)
+                pm.warning('{0} already exists. ->{1}'.format(name, new))
+            else:
+                i.rename(name)
 
     def suffix(self):
-        if (self.new == None) or (self.selection == None):
-            mc.warning("confirm set_value")
-            return
-
-        nameCheck = False
-        for i in range(len(self.selection)):
-            newName = "{0}{1}".format(self.selection[i].split("|")[-1], self.new)
-            if mc.objExists(newName):
-                nameCheck = True
-        if nameCheck:
-            mc.warning("already same name node")
-            return
-
-        temp = []
-        tempName = []
-
-        orig = self.selection
-        for i in range(len(orig)):
-            orig = mc.ls(sl=1, ap=1)
-            tempName.append(mc.rename(orig[i], "q1w2e3{0}".format(i)))
-
-        for i in range(len(tempName)):
-            newName = "{0}{1}".format(self.selection[i].split("|")[-1], self.new)
-            mc.rename(tempName[i], newName)
-            temp.append(newName)
-        self.selection = temp
+        for i in self.selection:
+            name = '{0}_{1}'.format(i.name(), self.new)
+            if pm.PyNode(name).objExists():
+                new = i.rename(name)
+                pm.warning('{0} already exists. ->{1}'.format(name, new))
+            else:
+                i.rename(name)
 
     def search_replace(self):
-        if (self.new == None) or (self.selection == None) or (self.orig == None):
-            mc.warning("confirm set_value")
-            return
-        nameCheck = False
-        for i in range(len(self.selection)):
-            if self.orig in self.selection[i].split("|")[-1]:
-                newName = self.selection[i].split("|")[-1].replace(self.orig, self.new)
-                if mc.objExists(newName):
-                    nameCheck = True
-        if nameCheck:
-            mc.warning("already same name node")
-            return
-
-        temp = []
-        tempName = []
-
-        orig = self.selection
-        for i in range(len(orig)):
-            orig = mc.ls(sl=1, ap=1)
-            tempName.append(mc.rename(orig[i], "q1w2e3{0}".format(i)))
-
-        for i in range(len(tempName)):
-            if self.orig in self.selection[i]:
-                newName = self.selection[i].split("|")[-1].replace(self.orig, self.new)
-                temp.append(mc.rename(tempName[i], newName))
+        for i in self.selection:
+            name = i.replace(self.orig, self.new)
+            if pm.PyNode(name).objExists():
+                new = i.rename(name)
+                pm.warning('{0} already exists. ->{1}'.format(name, new))
             else:
-                temp.append(mc.rename(tempName[i], self.selection[i].split("|")[-1]))
-        self.selection = temp
+                i.rename(name)
 
     def renaming(self):
-        if (self.new == None) or (self.selection == None) or (self.number == None) or (self.padding == None):
-            mc.warning("confirm set_value")
-            return
-        nameCheck = False
-        num = self.number
-        for i in range(len(self.selection)):
-            newName = "{0}{1}".format(self.new, str(num).zfill(self.padding))
-            if mc.objExists(newName):
-                nameCheck = True
-            num += 1
-        if nameCheck:
-            mc.warning("already same name node")
-            return
-
-        temp = []
-        tempName = []
-        for i in range(len(self.selection)):
-            self.selection = mc.ls(sl=1, ap=1)
-            tempName.append(mc.rename(self.selection[i], "q1w2e3{0}".format(i)))
-
-        for i in tempName:
-            newName = "{0}{1}".format(self.new, str(self.number).zfill(self.padding))
-            mc.rename(i, newName)
+        for i in self.selection:
+            name = '{0}{1}'.format((self.new, str(self.number).zfill(self.padding)))
+            if pm.PyNode(name).objExists():
+                new = i.rename(name)
+                pm.warning('{0} already exists. ->{1}'.format(name, new))
+            else:
+                i.rename(name)
             self.number += 1
-            temp.append(newName)
-        self.selection = temp
 
     def set_value(self, **args):
         if args.has_key("orig"):
@@ -222,12 +143,12 @@ class NamingUI(QtWidgets.QDialog):
 
     def prefix(self):
         with UndoWith():
-            self.na.set_value(new=self.newLine.text(), selection=mc.ls(sl=1))
+            self.na.set_value(new=self.newLine.text(), selection=pm.ls(selection=True))
             self.na.prefix()
 
     def suffix(self):
         with UndoWith():
-            self.na.set_value(new=self.newLine.text(), selection=mc.ls(sl=1))
+            self.na.set_value(new=self.newLine.text(), selection=pm.ls(selection=True))
             self.na.suffix()
 
     def search_replace(self):
@@ -235,7 +156,7 @@ class NamingUI(QtWidgets.QDialog):
             if self.origLine.text() == "":
                 return
             self.na.set_value(orig=self.origLine.text(), new=self.newLine.text()
-                                , selection=mc.ls(sl=1))
+                                , selection=pm.ls(selection=True))
             self.na.search_replace()
 
     def renaming(self):
@@ -244,25 +165,26 @@ class NamingUI(QtWidgets.QDialog):
                 int(self.numberLine.text())
                 int(self.paddingLine.text())
             except:
-                mc.warning("number and padding need int type") 
+                pm.warning("number and padding need int type") 
                 return
             if self.newLine.text() == "":
                 return
             elif int(self.numberLine.text()) < 0:
-                mc.warning("number > 0") 
+                pm.warning("number > 0") 
                 return
             elif int(self.paddingLine.text()) < 0:
-                mc.warning("padding > 0") 
+                pm.warning("padding > 0") 
                 return
             self.na.set_value(new=self.newLine.text(), number=self.numberLine.text()
-                                , padding=self.paddingLine.text(), selection=mc.ls(sl=True, ap=True))
+                                , padding=self.paddingLine.text(), selection=pm.ls(selection=True))
             self.na.renaming()
+            
 
     @classmethod
     def display(cls):
         with UndoWith():    
-            if mc.window(NamingUI.UINAME, query=True, exists=True):
-                mc.deleteUI(NamingUI.UINAME)
+            if pm.window(NamingUI.UINAME, query=True, exists=True):
+                pm.deleteUI(NamingUI.UINAME)
             ui = NamingUI()
             ui.show()
 

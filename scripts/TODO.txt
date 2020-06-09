@@ -1,0 +1,16 @@
+### rig ###
+mgear or custom rig module 
+
+feature : scale, soft ik, controller constrain(fullbody ik)
+
+### script ###
+1. room
+2. moyang
+3. skincare
+4. nameing
+5. toolkit(zeroout, jointLabeling, turntable)
+6. checkcard
+
+
+### api ### 
+curvelength divide
