@@ -25,36 +25,36 @@ class Naming():
     def prefix(self):
         for i in self.selection:
             name = i.addPrefix('{0}_'.format(self.new))
-            if pm.PyNode(name).objExists():
+            if pm.ls('*{0}*'.format(name)):
                 new = i.rename(name)
-                pm.warning('{0} already exists. ->{1}'.format(name, new))
+                pm.warning('{0} already exists. *** result : {1} ***'.format(name, new))
             else:
                 i.rename(name)
 
     def suffix(self):
         for i in self.selection:
             name = '{0}_{1}'.format(i.name(), self.new)
-            if pm.PyNode(name).objExists():
+            if pm.ls('*{0}*'.format(name)):
                 new = i.rename(name)
-                pm.warning('{0} already exists. ->{1}'.format(name, new))
+                pm.warning('{0} already exists. *** result : {1} ***'.format(name, new))
             else:
                 i.rename(name)
 
     def search_replace(self):
         for i in self.selection:
             name = i.replace(self.orig, self.new)
-            if pm.PyNode(name).objExists():
+            if pm.ls('*{0}*'.format(name)):
                 new = i.rename(name)
-                pm.warning('{0} already exists. ->{1}'.format(name, new))
+                pm.warning('{0} already exists. *** result : {1} ***'.format(name, new))
             else:
                 i.rename(name)
 
     def renaming(self):
         for i in self.selection:
-            name = '{0}{1}'.format((self.new, str(self.number).zfill(self.padding)))
-            if pm.PyNode(name).objExists():
+            name = '{0}{1}'.format(self.new, str(self.number).zfill(self.padding))
+            if pm.ls('*{0}*'.format(name)):
                 new = i.rename(name)
-                pm.warning('{0} already exists. ->{1}'.format(name, new))
+                pm.warning('{0} already exists. *** result : {1} ***'.format(name, new))
             else:
                 i.rename(name)
             self.number += 1
