@@ -1,10 +1,13 @@
 {
-    "maya": {
-        "shelfPath": "D:\\maya\\scripts\\room\\maya", 
-        "pluginsPath": "D:\\maya\\scripts\\room\\maya\\plug-ins", 
-        "scriptsPath": "D:\\maya\\scripts\\room\\maya\\scripts"
+    "path": {
+        ".room": "D:\\maya\\scripts\\room\\.room", 
+        "teamPlugins": "D:\\maya\\scripts\\room\\plug-ins", 
+        "userScripts": "C:/Users/qwe8q/Documents/maya/2020/scripts/", 
+        "teamScripts": "D:\\maya\\scripts\\room\\scripts", 
+        "userPlugins": "C:\\Users\\qwe8q\\Documents\\maya\\2020\\plug-ins", 
+        "user": "C:\\Users\\qwe8q\\Documents\\maya\\2020\\prefs\\shelves\\room", 
+        "team": "D:\\maya\\scripts\\room\\room"
     }, 
-    "tools": [
-        "maya"
-    ]
+    "mode": "floating", 
+    "selectedRoom": []
 }

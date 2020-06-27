@@ -179,7 +179,6 @@ class NamingUI(QtWidgets.QDialog):
                                 , padding=self.paddingLine.text(), selection=pm.ls(selection=True))
             self.na.renaming()
             
-
     @classmethod
     def display(cls):
         with UndoWith():    

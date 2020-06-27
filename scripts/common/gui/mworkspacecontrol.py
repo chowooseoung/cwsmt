@@ -15,15 +15,16 @@ class MWorkspaceControl(object):
         self.name = name
         self.widget = None
 
-    def create(self, label, widget, ui_script=None):
+    def create(self, label, widget, ui_script=None, vis=True):
 
-        pm.workspaceControl(self.name, label=label)
+        pm.workspaceControl(self.name, label=label, visible=False)
 
         if ui_script:
-            pm.workspaceControl(self.name, e=True, uiScript=ui_script)
+            pm.workspaceControl(self.name, e=True, uiScript=ui_script, visible=False)
 
         self.add_widget_to_layout(widget)
-        self.set_visible(True)
+        if vis == True:
+            self.set_visible(True)
 
     def restore(self, widget):
         self.add_widget_to_layout(widget)
@@ -74,7 +75,7 @@ class CustomUI(object):
 
     @classmethod
     def get_workspace_control_name(cls):
-        return "{0}WorkspaceControl".format(cls.__name__)
+        return '{0}WorkspaceControl'.format(cls.__name__)
 
     @classmethod
     def get_ui_script(cls):

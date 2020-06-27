@@ -46,7 +46,7 @@ class ShelfDelegate(QtWidgets.QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         if index.row() == 0:
-            print('a')
+            print 'a'
         else:
             QtWidgets.QStyledItemDelegate.paint(self, painter, option, index)
 

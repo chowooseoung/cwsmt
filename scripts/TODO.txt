@@ -7,7 +7,7 @@ feature : scale, soft ik, controller constrain(fullbody ik)
 1. room
 2. moyang
 3. skincare
-4. nameing
+4. naming
 5. toolkit(zeroout, jointLabeling, turntable)
 6. checkcard
 
