@@ -1,8 +1,9 @@
-import sys
-sys.path.append("D:\maya\scripts")
-
 import maya.OpenMayaUI as omui
 import pymel.core as pm
+
+import glob
+import json
+import os
 
 from PySide2 import QtWidgets, QtCore, QtGui, QtUiTools
 from shiboken2 import wrapInstance
@@ -11,10 +12,6 @@ from common.gui.mworkspacecontrol import MWorkspaceControl
 
 from functools import partial
 from collections import OrderedDict
-
-import glob
-import json
-import os
 
 
 class RoomUI(QtWidgets.QDialog):
@@ -263,4 +260,4 @@ if __name__ == "__main__":
     ''' Run the application. '''
 
     from room.gui.main import RoomUI
-    RoomUI.display()
+    RoomUI.show_display(m=None)
