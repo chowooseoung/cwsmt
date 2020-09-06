@@ -96,7 +96,7 @@ class IconManager(QtWidgets.QDialog):
         if mc.window(cls.ui_name, query=True, exists=True):
             mc.deleteUI(cls.ui_name)
         ui = cls()
-        ui.show()
+        ui.show() 
 
 if __name__ == "__main__":
     IconManager.display()
