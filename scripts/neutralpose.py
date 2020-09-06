@@ -7,7 +7,7 @@ import pymel.core as pm
 import maya.OpenMayaUI as omui
 
 
-def zeroout(addname, snap=False, child=False, objType=None, lastIndex=False):
+def neutral_pose(addname, snap=False, child=False, objType=None, lastIndex=False):
     selected_nodes = pm.ls(selection=True)
     
     if not selected_nodes:
@@ -86,16 +86,16 @@ def undo_info(func):
     return wrapper
 
 
-class ZeroOutUI(QtWidgets.QDialog):
+class NeutralPoseUI(QtWidgets.QDialog):
 
-    ui_name = "zerooutUI"
+    ui_name = "NeutralPoseUI"
 
     def __init__(self, parent=maya_main_window()):
-        super(ZeroOutUI, self).__init__(parent=parent)
+        super(NeutralPoseUI, self).__init__(parent=parent)
 
         self.setObjectName(self.ui_name)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        self.setWindowTitle("zero out")
+        self.setWindowTitle("NeutralPose")
 
         self.objType = ["transform", "joint", "locator", "cube"]
 
@@ -148,7 +148,7 @@ class ZeroOutUI(QtWidgets.QDialog):
         if name == "":
             name = "GRP"
         
-        zeroout(addname=name, snap=snap, child=child, objType=objType, lastIndex=lastIndex)
+        neutral_pose(addname=name, snap=snap, child=child, objType=objType, lastIndex=lastIndex)
 
     @classmethod
     @undo_info
@@ -159,4 +159,4 @@ class ZeroOutUI(QtWidgets.QDialog):
         ui.show()
 
 if __name__ == "__main__":
-    ZeroOutUI.display()
+    NeutralPoseUI.display()
