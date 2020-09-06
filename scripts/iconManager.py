@@ -14,14 +14,14 @@ def maya_main_window():
 
 class IconManager(QtWidgets.QDialog):
 
-    UINAME = "iconManager"
+    ui_name = "iconManager"
     DEFAULT_PATH = "{0}icons".format(mc.internalVar(upd=True))
 
     def __init__(self, parent=maya_main_window()):
         super(IconManager, self).__init__(parent=parent)
 
-        self.setObjectName(IconManager.UINAME)
-        self.setWindowTitle(IconManager.UINAME)
+        self.setObjectName(self.ui_name)
+        self.setWindowTitle(self.ui_name)
 
         self.create_widgets()
         self.create_layouts()
@@ -29,82 +29,73 @@ class IconManager(QtWidgets.QDialog):
         self.set_icon()
 
     def create_widgets(self):
-        self.filterLine = QtWidgets.QLineEdit()
-        self.searchBtn = QtWidgets.QPushButton("search")
+        self.filter_line = QtWidgets.QLineEdit()
+        self.search_btn = QtWidgets.QPushButton("search")
 
-        self.combo = QtWidgets.QComboBox()
-        self.combo.addItems(["maya default", "path {0}".format(IconManager.DEFAULT_PATH)])
-        
-        self.iconList = QtWidgets.QListWidget()
-        self.iconList.setResizeMode(QtWidgets.QListView.Adjust)
-        self.iconList.setSpacing(2)
-        self.iconList.setViewMode(QtWidgets.QListView.IconMode)
-        self.iconList.setSizeAdjustPolicy(QtWidgets.QListWidget.AdjustToContents)
-        self.iconList.setIconSize(QtCore.QSize(48, 48))
-        self.iconList.setDragEnabled(False)
+        self.icon_list = QtWidgets.QListWidget()
+        self.icon_list.setResizeMode(QtWidgets.QListView.Adjust)
+        self.icon_list.setSpacing(2)
+        self.icon_list.setViewMode(QtWidgets.QListView.IconMode)
+        self.icon_list.setSizeAdjustPolicy(QtWidgets.QListWidget.AdjustToContents)
+        self.icon_list.setIconSize(QtCore.QSize(48, 48))
+        self.icon_list.setDragEnabled(False)
 
-        self.nameLine = QtWidgets.QLineEdit()
-        self.nameLine.setReadOnly(True)
+        self.name_line = QtWidgets.QLineEdit()
+        self.name_line.setReadOnly(True)
 
-        QtWidgets.QShortcut(QtGui.QKeySequence("enter"), self.searchBtn, self.set_icon)
-        QtWidgets.QShortcut(QtGui.QKeySequence("return"), self.searchBtn, self.set_icon)
+        QtWidgets.QShortcut(QtGui.QKeySequence("enter"), self.search_btn, self.set_icon)
+        QtWidgets.QShortcut(QtGui.QKeySequence("return"), self.search_btn, self.set_icon)
 
     def create_layouts(self):   
-        mainLayout = QtWidgets.QGridLayout(self)
-        filterLayout = QtWidgets.QFormLayout()
-        filterLayout.addRow("nameFilter :", self.filterLine)
+        main_layout = QtWidgets.QGridLayout(self)
+        filter_layout = QtWidgets.QFormLayout()
+        filter_layout.addRow("name_filter :", self.filter_line)
 
-        mainLayout.addLayout(filterLayout, 0, 0)
-        mainLayout.addWidget(self.searchBtn, 0, 1)
+        main_layout.addLayout(filter_layout, 0, 0)
+        main_layout.addWidget(self.search_btn, 0, 1)
 
-        mainLayout.addWidget(self.combo, 1, 0, 1, 2)
-        mainLayout.addWidget(self.iconList, 2, 0, 1, 2)
-        nameLayout = QtWidgets.QFormLayout()
-        nameLayout.addRow("name :", self.nameLine)
-        mainLayout.addLayout(nameLayout, 3, 0, 1, 2)
+        main_layout.addWidget(self.icon_list, 2, 0, 1, 2)
+        name_layout = QtWidgets.QFormLayout()
+        name_layout.addRow("name :", self.name_line)
+        main_layout.addLayout(name_layout, 3, 0, 1, 2)
 
     def create_connections(self):
-        self.searchBtn.clicked.connect(self.set_icon)
-        self.iconList.itemClicked.connect(self.print_name)
+        self.search_btn.clicked.connect(self.set_icon)
+        self.icon_list.itemClicked.connect(self.print_name)
 
     def set_icon(self): 
-        if self.filterLine.text() == "":
-            nameFilter = "*"
+        if self.filter_line.text() == "":
+            name_filter = "*"
         else:
-            nameFilter = "*{0}*".format(self.filterLine.text())
+            name_filter = "*{0}*".format(self.filter_line.text())
         
-        if self.combo.currentIndex() == 0:
-            image = mc.resourceManager(nf=nameFilter)
-            if image == None:
-                self.iconList.clear()
-                return
-            self.iconList.clear()
+        images = mc.resourceManager(nameFilter=name_filter)
+        self.icon_list.clear()
+        if images == None:
+            return
 
-            for i in image:
-                path = ":{0}".format(i)
-                image = QtGui.QImage(path)
-                image = image.scaled(32, 32, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
-                
-                pixmap = QtGui.QPixmap()
-                pixmap.convertFromImage(image)
-                
-                item = QtWidgets.QListWidgetItem(QtGui.QIcon(pixmap), None)
-                item.setSizeHint(QtCore.QSize(32, 32))
-                item.setToolTip(path)   
+        for image in images:
+            image_path = ":{0}".format(image)
+            image = QtGui.QImage(image_path)
+            image = image.scaled(32, 32, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
+            
+            pixmap = QtGui.QPixmap()
+            pixmap.convertFromImage(image)
+            
+            item = QtWidgets.QListWidgetItem(QtGui.QIcon(pixmap), None)
+            item.setSizeHint(QtCore.QSize(32, 32))
+            item.setToolTip(image_path)   
 
-                self.iconList.addItem(item)
-
-        elif self.combo.currentIndex() == 1:
-            print 'b'
+            self.icon_list.addItem(item)
 
     def print_name(self):
-        self.nameLine.setText(self.iconList.currentItem().toolTip())
+        self.name_line.setText(self.icon_list.currentItem().toolTip())
 
     @classmethod
     def display(cls):
-        if mc.window(cls.UINAME, query=True, exists=True):
-            mc.deleteUI(cls.UINAME)
-        ui = IconManager()
+        if mc.window(cls.ui_name, query=True, exists=True):
+            mc.deleteUI(cls.ui_name)
+        ui = cls()
         ui.show()
 
 if __name__ == "__main__":
