@@ -7,7 +7,7 @@ import pymel.core as pm
 import maya.OpenMayaUI as omui
 
 
-def neutral_pose(addname, snap=False, child=False, objType=None, lastIndex=False):
+def neutral_pose(addName, snap=False, child=False, objType=None, lastIndex=False):
     selected_nodes = pm.ls(selection=True)
     
     if not selected_nodes:
@@ -19,27 +19,27 @@ def neutral_pose(addname, snap=False, child=False, objType=None, lastIndex=False
             temp_name_list = selected_nodes[index].name().split("_")
             temp_name_list.pop(-1)
             edit_name = "_".join(temp_name_list)
-            name_list.append("{0}_{1}".format(edit_name, addname))
+            name_list.append("{0}{1}".format(edit_name, addName))
         else:
-            name_list.append("{0}_{1}".format(selected_nodes[index].name(), addname))
+            name_list.append("{0}{1}".format(selected_nodes[index].name(), addName))
         
         if pm.objExists(name_list[index]):
             pm.warning("already {0} exists".format(name_list[index]))
             return
     
-    zeroout_grp = []
+    neutral_pose_grp = list()
     for index in range(len(selected_nodes)):
         parent_name = selected_nodes[index].getParent()
         name = name_list[index]
         
         if objType == "transform":
-            zeroout_grp.append(pm.group(empty=True, name=name))
+            neutral_pose_grp.append(pm.group(empty=True, name=name))
         elif objType == "joint":
-            zeroout_grp.append(pm.createNode("joint", name=name))
+            neutral_pose_grp.append(pm.createNode("joint", name=name))
         elif objType == "locator":
-            zeroout_grp.append(pm.spaceLocator(name=name))
+            neutral_pose_grp.append(pm.spaceLocator(name=name))
         elif objType == "cube":
-            zeroout_grp.append(pm.curve(degree=1, point=([-1.0, 1.0, 1.0],
+            neutral_pose_grp.append(pm.curve(degree=1, point=([-1.0, 1.0, 1.0],
                                                         [-1.0, 1.0, -1.0],
                                                         [1.0, 1.0, -1.0],
                                                         [1.0, 1.0, 1.0],
@@ -55,21 +55,21 @@ def neutral_pose(addname, snap=False, child=False, objType=None, lastIndex=False
                                                         [-1.0, 1.0, -1.0],
                                                         [-1.0, -1.0, -1.0],
                                                         [-1.0, -1.0, 1.0])))
-            zeroout_grp[index].rename(name)
-        zeroout_grp[index].rotateOrder.set(selected_nodes[index].rotateOrder.get())
+            neutral_pose_grp[index].rename(name)
+        neutral_pose_grp[index].rotateOrder.set(selected_nodes[index].rotateOrder.get())
 
-        pm.matchTransform(zeroout_grp[index], selected_nodes[index])
+        pm.matchTransform(neutral_pose_grp[index], selected_nodes[index])
         if snap == False:
             if child == False:
                 if parent_name == None:
-                    pm.parent(selected_nodes[index], zeroout_grp[index])
+                    pm.parent(selected_nodes[index], neutral_pose_grp[index])
                 else:
-                    pm.parent(zeroout_grp[i], parent_name)
-                    pm.parent(selected_nodes[index], zeroout_grp[index])
+                    pm.parent(neutral_pose_grp[i], parent_name)
+                    pm.parent(selected_nodes[index], neutral_pose_grp[index])
             else:
-                pm.parent(zeroout_grp[index], selected_nodes[index])
-    pm.select(zeroout_grp)
-    return zeroout_grp
+                pm.parent(neutral_pose_grp[index], selected_nodes[index])
+    pm.select(neutral_pose_grp)
+    return neutral_pose_grp
 
 
 def maya_main_window():
@@ -104,51 +104,51 @@ class NeutralPoseUI(QtWidgets.QDialog):
         self.create_connections()
 
     def create_widgets(self):
-        self.groupBox = QtWidgets.QGroupBox()
+        self.group_box = QtWidgets.QGroupBox()
 
-        self.defaultRadioBtn = QtWidgets.QRadioButton("default")
-        self.defaultRadioBtn.setChecked(True)
-        self.snapRadioBtn = QtWidgets.QRadioButton("snap")
-        self.childRadioBtn = QtWidgets.QRadioButton("child")
-        self.lastIndexCheckBox = QtWidgets.QCheckBox("last index")
+        self.default_radio_btn = QtWidgets.QRadioButton("default")
+        self.default_radio_btn.setChecked(True)
+        self.snap_radio_btn = QtWidgets.QRadioButton("snap")
+        self.child_radio_btn = QtWidgets.QRadioButton("child")
+        self.last_index_check_box = QtWidgets.QCheckBox("last index")
 
-        self.nameLine = QtWidgets.QLineEdit()
+        self.name_line = QtWidgets.QLineEdit()
 
-        self.objTypeComboBox = QtWidgets.QComboBox()
-        self.objTypeComboBox.addItems(self.objType)
-        self.zeroOutBtn = QtWidgets.QPushButton("zero out")
+        self.obj_type_combo_box = QtWidgets.QComboBox()
+        self.obj_type_combo_box.addItems(self.objType)
+        self.neutral_pose_btn = QtWidgets.QPushButton("zero out")
 
     def create_layouts(self):
-        mainLayout = QtWidgets.QFormLayout(self)
+        main_layout = QtWidgets.QFormLayout(self)
 
-        groupBoxLayout = QtWidgets.QHBoxLayout(self.groupBox)
-        groupBoxLayout.setContentsMargins(0,0,0,0)
-        groupBoxLayout.addWidget(self.defaultRadioBtn)
-        groupBoxLayout.addWidget(self.snapRadioBtn)
-        groupBoxLayout.addWidget(self.childRadioBtn)
-        groupBoxLayout.addWidget(self.lastIndexCheckBox)
-        mainLayout.addRow(self.groupBox)
-        mainLayout.addRow("suffix name: ", self.nameLine)
+        group_box_layout = QtWidgets.QHBoxLayout(self.group_box)
+        group_box_layout.setContentsMargins(0,0,0,0)
+        group_box_layout.addWidget(self.default_radio_btn)
+        group_box_layout.addWidget(self.snap_radio_btn)
+        group_box_layout.addWidget(self.child_radio_btn)
+        group_box_layout.addWidget(self.last_index_check_box)
+        main_layout.addRow(self.group_box)
+        main_layout.addRow("suffix name: ", self.name_line)
 
-        createLayout = QtWidgets.QHBoxLayout()
-        createLayout.addWidget(self.objTypeComboBox)
-        createLayout.addWidget(self.zeroOutBtn)
-        mainLayout.addRow(createLayout)
+        create_layout = QtWidgets.QHBoxLayout()
+        create_layout.addWidget(self.obj_type_combo_box)
+        create_layout.addWidget(self.neutral_pose_btn)
+        main_layout.addRow(create_layout)
 
     def create_connections(self):
-        self.zeroOutBtn.clicked.connect(self.zero_out)
+        self.neutral_pose_btn.clicked.connect(self.neutral_pose_click)
 
     @undo_info
-    def zero_out(self):
-        name = self.nameLine.text()
-        snap = self.snapRadioBtn.isChecked()
-        child = self.childRadioBtn.isChecked()
-        objType = self.objTypeComboBox.currentText()
-        lastIndex = self.lastIndexCheckBox.isChecked()
-        if name == "":
-            name = "GRP"
+    def neutral_pose_click(self):
+        name = self.name_line.text()
+        snap = self.snap_radio_btn.isChecked()
+        child = self.child_radio_btn.isChecked()
+        objType = self.obj_type_combo_box.currentText()
+        lastIndex = self.last_index_check_box.isChecked()
+        if not name:
+            name = "_GRP"
         
-        neutral_pose(addname=name, snap=snap, child=child, objType=objType, lastIndex=lastIndex)
+        neutral_pose(addName=name, snap=snap, child=child, objType=objType, lastIndex=lastIndex)
 
     @classmethod
     @undo_info

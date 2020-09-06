@@ -16,7 +16,7 @@ def undoInfo(func):
         return funcVar
     return wrapper
 
-class Naming():
+class Renamer():
 
     def __init__(self, orig=None, new=None, selection=None, padding=None, number=None):
         self.set_value(orig=orig, new=new, selection=selection, padding=padding, number=number)
@@ -73,12 +73,12 @@ class Naming():
                 self.number = int(args["number"])
 
 
-class NamingUI(QtWidgets.QDialog):
+class RenamerUI(QtWidgets.QDialog):
 
     ui_name = "namingUI"
 
     def __init__(self, parent=maya_main_window()):
-        super(NamingUI, self).__init__(parent)
+        super(RenamerUI, self).__init__(parent)
 
         self.setObjectName(self.ui_name)
         self.setWindowTitle(self.ui_name)
@@ -88,7 +88,7 @@ class NamingUI(QtWidgets.QDialog):
         self.create_widgets()
         self.create_layouts()
         self.create_connections()
-        self.na = Naming()
+        self.na = Renamer()
 
     def create_widgets(self):
         self.orig_line = QtWidgets.QLineEdit()
@@ -189,4 +189,4 @@ class NamingUI(QtWidgets.QDialog):
         ui.show()
 
 if __name__ == "__main__":
-    NamingUI.display()
+    RenamerUI.display()
