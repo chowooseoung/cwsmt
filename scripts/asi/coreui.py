@@ -2,14 +2,10 @@
 
 from Qt import QtWidgets, QtCore, QtGui, QtCompat
 from functools import partial
-# from .TagLines import TagLine
 
 import random
 import json
 import os
-
-tag_role = QtCore.Qt.UserRole + 1
-color_role = QtCore.Qt.UserRole + 2
 
 
 class AsiCoreUI(QtWidgets.QMainWindow):
@@ -73,17 +69,7 @@ class AsiCoreUI(QtWidgets.QMainWindow):
             item.append(label)
             item.append(scripts[label]["Author"])
             item.append(scripts[label]["Tags"])
-            # item.append(scripts[label]["Meta"])
             self.table_view_model.insertRows(row, data=item)
-            # self.table_view.insertRow(row)
-            # icon_item = QtWidgets.QTableWidgetItem()
-            # icon_item.setIcon(QtGui.QIcon(scripts[item]["Icon"]))
-            # self.table_view.setItem(row, 0, icon_item)
-            # self.table_view.setItem(row, 1, QtWidgets.QTableWidgetItem(item))
-            # self.table_view.setItem(row, 2, QtWidgets.QTableWidgetItem(scripts[item]["Author"]))
-            # TagLine_item = QtWidgets.QTableWidgetItem()
-            # TagLine_item.setData(tag_role, scripts[item]["Tags"])
-            # self.table_view.setItem(row, 3, TagLine_item)
 
     def load_item_data(self):
         data = dict()
@@ -112,7 +98,6 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
         if index.column() == 0:
             icon = QtGui.QIcon(index.data())
             icon.paint(painter, option.rect, QtCore.Qt.AlignCenter)
-            # QtWidgets.QStyledItemDelegate.paint(self, painter, option, index)
         elif index.column() == 3: 
             editor = TagsEditor()
 
@@ -128,7 +113,6 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
             editor.resize(option.rect.size())
             editor.render(painter, QtCore.QPoint(0, 0))
             painter.restore()
-            # QtWidgets.QStyledItemDelegate.paint(self, painter, option, index)
         else:
             QtWidgets.QStyledItemDelegate.paint(self, painter, option, index)
 
@@ -144,9 +128,6 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
             return QtWidgets.QStyledItemDelegate.sizeHint(self, option, index)
 
     def createEditor(self, parent, option, index):
-        """ Creates and returns the custom StarEditor object we'll use to edit 
-            the StarRating.
-        """
         if index.column() == 3:
             editor = TagsEditor(parent=parent)
             editor.colors = self.colors
@@ -157,7 +138,6 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
             return QtWidgets.QStyledItemDelegate.createEditor(self, parent, option, index)
 
     def setEditorData(self, editor, index):
-        """ Sets the data to be displayed and edited by our custom editor. """
         if index.column() == 3:
             pass
             # editor.colors = self.colors
@@ -167,8 +147,6 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
             QtWidgets.QStyledItemDelegate.setEditorData(self, editor, index)
 
     def setModelData(self, editor, model, index):
-        """ Get the data from our custom editor and stuffs it into the model.
-        """
         if index.column() == 3:
             model.setData(index, editor.tags, QtCore.Qt.EditRole)
             self.colors = editor.colors
@@ -206,8 +184,6 @@ class AsiTableModel(QtCore.QAbstractTableModel):
             return False
         
         if index.isValid() and 0 <= index.row() < len(self.asi_data):
-            # for i in range(index.column()-1):
-                # print self.asi_data[index.column()]
             self.asi_data[index.row()][index.column()] = value
             self.dataChanged.emit(index, index)
             return True
@@ -573,12 +549,3 @@ class AsiMayaUI(AsiCoreUI):
                         imageOverlayLabel=imageOverlayLabel,
                         sourceType=sourceType,
                         annotation=annotation)
-
-def run_asi(permission):
-    # ui_name = AsiMayaUI.ui_name
-    # if pm.window(ui_name, query=True, exists=True):
-    #     pm.deleteUI(ui_name)
-    ui = AsiMayaUI(permission=permission, parent=QtWidgets.QApplication.activeWindow())
-    ui.show()
-
-
