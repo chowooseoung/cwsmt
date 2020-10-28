@@ -63,15 +63,15 @@ class MWorkspaceControl(object):
 
 class CustomUI(object):
 
-    uiInstance = None
+    ui_instance = None
 
 
     @classmethod
     def display(cls):
-        if cls.uiInstance:
-            cls.uiInstance.show_workspace_control()
+        if cls.ui_instance:
+            cls.ui_instance.show_workspace_control()
         else:
-            cls.uiInstance = cls()
+            cls.ui_instance = cls()
 
     @classmethod
     def get_workspace_control_name(cls):

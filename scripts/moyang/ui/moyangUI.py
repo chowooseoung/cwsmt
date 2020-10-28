@@ -600,4 +600,8 @@ class MoYangUI(QtWidgets.QDialog):
             ui.show()
 
 if __name__ == "__main__":
-    MoYangUI.display()
+    sys.path.insert(0, "D:\maya\scripts")
+    import moyang.ui.moyangUI as moui
+    reload(moui)
+    moui.MoYangUI.display()
+    

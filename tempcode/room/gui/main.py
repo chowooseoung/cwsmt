@@ -5,7 +5,7 @@ import glob
 import json
 import os
 
-from PySide2 import QtWidgets, QtCore, QtGui, QtUiTools
+from Qt import QtWidgets, QtCore, QtGui, QtCompat
 from shiboken2 import wrapInstance
 from common.gui.uiloader import UiLoader
 from common.gui.mworkspacecontrol import MWorkspaceControl
@@ -143,11 +143,9 @@ class RoomUI(QtWidgets.QDialog):
         if not os.path.exists(prefJsonFile):
             self.dump_json(self.init_preference(), prefJsonFile) # preference init json create
         self.set_preferenceJson(self.load_json(prefJsonFile)) # preference json load
-
         for i in self.preferencePath: # folder create   
             if not os.path.exists(self.preferencePath[i]):
                 os.makedirs(self.preferencePath[i])
-        
         userJsonFile = os.path.normpath(os.path.join(self.preferencePath['user'], 'user.json')) # default userJson
         if not os.path.exists(userJsonFile):
             self.dump_json(dict(), userJsonFile) # default userJson create
@@ -166,12 +164,10 @@ class RoomUI(QtWidgets.QDialog):
         super(RoomUI, self).__init__()
 
         self.setObjectName(self.__class__.__name__)
-        
+        QtCompat.loadUi(RoomUI.uiFile, self)
         self.create_workspace_control()
-
         self.set_hotkey()
         self.room_init()
-
         teamCategory = [x.split('.json')[0] for x in sorted(os.listdir(self.preferencePath['team']))]
         userCategory = [x.split('.json')[0] for x in sorted(os.listdir(self.preferencePath['user']))]
         self.itemDict = dict()

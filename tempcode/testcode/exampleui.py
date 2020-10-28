@@ -4,8 +4,8 @@
 # test code
 ################################################################
 from PySide2 import QtWidgets, QtCore, QtGui
-from common.gui.workspacecontrol import CustomUI
-from common.gui.workspacecontrol import WorkspaceControl
+from common.gui.mworkspacecontrol import CustomUI
+from common.gui.mworkspacecontrol import WorkspaceControl
 from common.gui.uiloader import UiLoader
 
 import os
@@ -133,17 +133,17 @@ class Test3UI(QtWidgets.QDialog):
         UiLoader().loadUi(self.UI, self)
 
     def showEvent(self, e):
-        super(Test2UI, self).showEvent(e)
+        super(Test3UI, self).showEvent(e)
 
         print 'showEvent'
             
     def closeEvent(self, e):
-        super(Test2UI, self).closeEvent(e)
+        super(Test3UI, self).closeEvent(e)
 
         print 'closeEvent'
     
     def hideEvent(self, e):
-        super(Test2UI, self).hideEvent(e)
+        super(Test3UI, self).hideEvent(e)
 
         print 'hideEvent'
 
