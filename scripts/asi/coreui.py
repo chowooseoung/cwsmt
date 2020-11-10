@@ -4,6 +4,7 @@ from Qt import QtWidgets, QtCore, QtGui, QtCompat
 from functools import partial
 
 import random
+import re
 
 
 class AsiTableView(QtWidgets.QTableView):
@@ -17,6 +18,7 @@ class AsiTableView(QtWidgets.QTableView):
         self.verticalHeader().setDefaultSectionSize(40)
         self.setSelectionMode(QtWidgets.QTableView.SingleSelection)
         self.setSelectionBehavior(QtWidgets.QTableView.SelectRows)
+
 
 class AsiListView(QtWidgets.QListView):
 
@@ -32,7 +34,7 @@ class AsiListView(QtWidgets.QListView):
         event.ignore()
 
 
-class AsiTableModel(QtCore.QAbstractTableModel):
+class AsiModel(QtCore.QAbstractTableModel):
     
     __scripts = None
     __colors = None
@@ -54,7 +56,7 @@ class AsiTableModel(QtCore.QAbstractTableModel):
         self.__colors = c
 
     def __init__(self, scripts=None, colors=None, parent=None):
-        super(AsiTableModel, self).__init__(parent)
+        super(AsiModel, self).__init__(parent)
         if scripts is None: 
             self.scripts = [["icon", "label", "author", list(), dict()]] # [[icon, label, author, tags, meta], ...]
         else: 
@@ -126,7 +128,7 @@ class AsiTableModel(QtCore.QAbstractTableModel):
 
         for row in range(rows):
             self.scripts.insert(position+row, data)
-
+        self.dataChanged.emit(index, index)
         self.endInsertRows()
         return True
     
@@ -139,6 +141,78 @@ class AsiTableModel(QtCore.QAbstractTableModel):
         return True
 
 
+class AsiProxyModel(QtCore.QSortFilterProxyModel):    
+    def __init__(self, *args, **kwargs):
+        QtCore.QSortFilterProxyModel.__init__(self, *args, **kwargs)
+        self.line_filter = list()
+        self.tag_filter = list()
+
+    def setLineFilter(self, regex):
+        if isinstance(regex, unicode):
+            if regex:
+                regex = re.compile(regex)
+                temp = list()
+                temp.append(regex)
+                self.line_filter = temp
+            else:
+                self.line_filter = list()
+            print "line filter", self.line_filter
+        self.invalidateFilter()
+
+    def setTagsFilter(self, tag):
+        if isinstance(tag, unicode):
+            regex = re.compile(tag)
+        print "settagfilter"
+        self.tag_filter.append(regex)
+        self.invalidateFilter()
+
+    def clearTagsFilter(self, tag):
+        if isinstance(tag, unicode):
+            regex = re.compile(tag)
+        if regex in self.tag_filter:
+            print "cleartagfilter"
+            self.tag_filter.remove(regex)
+        self.invalidateFilter()
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        if (not self.line_filter) and (not self.tag_filter):
+            return True
+        label, author, tags = range(1, 4)
+
+        def filtering(reg, data, results):
+            if isinstance(data, list):
+                for d in data:
+                    filtering(reg, d, results)
+            else:
+                results.append(reg.search(data))
+        
+        tags_results = list()
+        line_results = list()
+
+        data = list()
+        for column in [label, author, tags]:
+            index = self.sourceModel().index(source_row, column, source_parent)
+            if index.isValid():
+                data.append(self.sourceModel().data(index, QtCore.Qt.DisplayRole))
+        
+        for reg in self.tag_filter:
+            filtering(reg, data, tags_results)
+        
+        for reg in self.line_filter:
+            filtering(reg, data, line_results)
+        
+        if self.tag_filter:
+            tag_bool = any(tags_results)
+        else: 
+            tag_bool = True
+        if self.line_filter:
+            line_bool = any(line_results)
+        else:
+            line_bool = True
+
+        return all([tag_bool, line_bool])
+
+
 class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
 
     def __init__(self, parent=None):
@@ -149,16 +223,21 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         if index.column() == 0:
+            # proxy_model = index.model()
+            # source_index = proxy_model.mapToSource(index)
+
             icon = QtGui.QIcon(index.data())
             icon.paint(painter, option.rect, QtCore.Qt.AlignCenter)
         elif index.column() == 3: 
+            # proxy_model = index.model()
+            # source_index = proxy_model.mapToSource(index)
             editor = AsiTags()
 
             if option.state & QtWidgets.QStyle.State_Selected:
                 editor.setBackgroundRole(QtGui.QPalette.ColorRole.Highlight)
             
             painter.save()
-            editor.colors = index.model().colors
+            editor.colors = index.model().sourceModel().colors
             editor.setup_ui(index.data())
             editor.vis_button(switch=False)
 
@@ -169,21 +248,23 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
         else:
             QtWidgets.QStyledItemDelegate.paint(self, painter, option, index)
 
-    def sizeHint(self, option, index):
-        if index.column() == 1:
-            return QtWidgets.QStyledItemDelegate.sizeHint(self, option, index)
-        elif index.column() == 3:
-            editor = AsiTags()
-            editor.colors = index.model().colors
-            editor.setup_ui(index.data())
-            return editor.sizeHint()
-        else:
-            return QtWidgets.QStyledItemDelegate.sizeHint(self, option, index)
+    # def sizeHint(self, option, index):
+    #     if index.column() == 1:
+    #         return QtWidgets.QStyledItemDelegate.sizeHint(self, option, index)
+    #     elif index.column() == 3:
+    #         editor = AsiTags()
+    #         editor.colors = index.model().sourceModel().colors
+    #         editor.setup_ui(index.data())
+    #         return editor.sizeHint()
+    #     else:
+    #         return QtWidgets.QStyledItemDelegate.sizeHint(self, option, index)
 
     def createEditor(self, parent, option, index):
         if index.column() == 3:
+            # proxy_model = index.model()
+            # source_index = proxy_model.mapToSource(index)
             editor = AsiTags(parent=parent)
-            editor.colors = index.model().colors
+            editor.colors = index.model().sourceModel().colors
             editor.setup_ui(index.data())
             editor.vis_button(switch=True)
             return editor
@@ -202,6 +283,8 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
 
     def setModelData(self, editor, model, index):
         if index.column() == 3:
+            index = model.mapToSource(index)
+            model = model.sourceModel()
             model.setData(index, editor.tags, QtCore.Qt.EditRole)
             tags_set = set()
             for row in range(model.rowCount()):
@@ -287,6 +370,7 @@ class AsiTags(QtWidgets.QWidget):
         button.clicked.connect(partial(self.delete_tag, tag=frame, name=name))
         self.x_buttons.append(button)
         self.tags.append(name)
+        self.tags.sort()
 
     def vis_button(self, switch):
         if switch is True: 

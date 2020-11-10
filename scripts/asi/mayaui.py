@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from Qt import QtWidgets, QtCore, QtGui, QtCompat
-from coreui import AsiListView, AsiTableView, AsiTableModel, AsiTableDelegate
+from coreui import AsiListView, AsiTableView, AsiModel, AsiProxyModel, AsiTableDelegate
 from mworkspacecontrol import MWorkspaceControl
 from functools import partial
 
@@ -24,24 +24,27 @@ class AsiMayaTableView(AsiTableView):
         self.timer.setSingleShot(True)
         self.timer.timeout.connect(self.timeout)
         self.click_number = 0
-        self.index = None
+        self.index1 = None
+        self.index2 = None
 
     def mousePressEvent(self, event):
         super(AsiMayaTableView, self).mousePressEvent(event)
-        self.index1 = self.indexAt(event.pos())
-        if self.index1.isValid():
-            if event.modifiers() == (QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier):
-                self.asi_shelf_clicked.emit(self.index1)
-                return
-        self.click_number += 1
-        if not self.timer.isActive():
-            self.timer.start()
+        if event.button() == QtCore.Qt.LeftButton:
+            self.index1 = self.indexAt(event.pos())
+            if self.index1.isValid():
+                if event.modifiers() == (QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier):
+                    self.asi_shelf_clicked.emit(self.index1)
+                    return
+            self.click_number += 1
+            if not self.timer.isActive():
+                self.timer.start()
 
     def mouseDoubleClickEvent(self, event):
         super(AsiMayaTableView, self).mouseDoubleClickEvent(event)
-        if self.timer.isActive():
-            self.click_number += 1
-            self.index2 = self.indexAt(event.pos())
+        if event.button() == QtCore.Qt.LeftButton:
+            if self.timer.isActive():
+                self.click_number += 1
+                self.index2 = self.indexAt(event.pos())
         
     def timeout(self):
         if self.click_number == 1:
@@ -130,8 +133,11 @@ class AsiMaya(QtWidgets.QMainWindow):
         self.list_view = AsiMayaListView()
         self.view_layout.addWidget(self.table_view)
         self.view_layout.addWidget(self.list_view)
+        self.proxy_model = AsiProxyModel()
+        self.proxy_model.setSourceModel(AsiModel())
+        self.table_view.setModel(self.proxy_model)
         self.table_view.setItemDelegate(AsiTableDelegate())
-        self.table_view.setModel(AsiTableModel())
+        self.table_view.setSortingEnabled(True)
         self.table_view.horizontalHeader().hideSection(4)
         
         self.view_mode_action_group = QtWidgets.QActionGroup(self)
@@ -139,7 +145,9 @@ class AsiMaya(QtWidgets.QMainWindow):
         self.view_mode_action_group.addAction(self.action_list)
         self.action_table.setChecked(True)
         self.list_view.hide()
-        
+
+        self.tags_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+
         if self.permission == "guest":  
             self.table_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
             return
@@ -149,16 +157,19 @@ class AsiMaya(QtWidgets.QMainWindow):
 
     def create_connections(self):
         self.view_mode_action_group.triggered.connect(self.view_mode)
-        self.ad.accepted.connect(self.add_item)
-        self.ed.accepted.connect(self.edit_item)
         self.load_action_btn.triggered.connect(self.load_json)
-        self.save_action_btn.triggered.connect(self.save_json)
+        self.search_line.textChanged.connect(self.proxy_model.setLineFilter)
+        self.table_view.model().sourceModel().dataChanged.connect(self.setup_tags_view)
+        self.tags_view.cellChanged.connect(self.tags_filter)
 
         if self.permission == "guest":
-            self.table_view.asi_clicked[QtCore.QModelIndex].connect(self.run_click_command)
-            self.table_view.asi_double_clicked[QtCore.QModelIndex].connect(self.run_double_click_command)
+            self.table_view.asi_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="command"))
+            self.table_view.asi_double_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="doubleCommand"))
             self.table_view.asi_shelf_clicked[QtCore.QModelIndex].connect(self.add_shelf_button)
             return
+        self.ad.accepted.connect(self.add_item)
+        self.ed.accepted.connect(self.edit_item)
+        self.save_action_btn.triggered.connect(self.save_json)
         self.table_view.customContextMenuRequested[QtCore.QPoint].connect(self.table_view_menu)
         self.add_item_action.triggered.connect(self.add_item_window)
         self.edit_item_action.triggered.connect(self.edit_item_window)
@@ -173,9 +184,49 @@ class AsiMaya(QtWidgets.QMainWindow):
             self.list_view.show()
 
     def table_view_menu(self, point):
+        index = self.table_view.indexAt(point)
+        if not index.isValid():
+            return
         context_menu = QtWidgets.QMenu()
         context_menu.addActions([self.add_item_action, self.edit_item_action, self.delete_item_action])
         context_menu.exec_(self.table_view.mapToGlobal(point))
+
+    def setup_tags_view(self):
+        self.tags_view.clearContents()
+        
+        colors = self.table_view.model().sourceModel().colors
+        self.tags_view.setRowCount(len(colors))
+        self.tags_view.setColumnCount(2)
+        for index, key in enumerate(colors):
+            cell_widget = QtWidgets.QWidget()
+            layout = QtWidgets.QHBoxLayout(cell_widget)
+            layout.setAlignment(QtCore.Qt.AlignCenter)
+            layout.setContentsMargins(0, 0, 0, 0)
+            checkbox = QtWidgets.QCheckBox()
+            checkbox.stateChanged[int].connect(partial(self.check_tags, txt=key))
+
+            layout.addWidget(checkbox)
+            tag = QtWidgets.QTableWidgetItem(key)
+            self.tags_view.setCellWidget(index, 0, cell_widget)
+            self.tags_view.setItem(index, 1, tag)
+
+    def check_tags(self, isChecked, txt):
+        if bool(isChecked) == True:
+            self.proxy_model.setTagsFilter(txt)
+        else:
+            self.proxy_model.clearTagsFilter(txt)
+
+    def tags_filter(self, row, column):
+        item = self.tags_view.item(row, column)
+        lastState = item.data(QtCore.Qt.UserRole)
+        currentState = item.checkState()
+        
+        if currentState != lastState:
+            if currentState == QtCore.Qt.Checked:
+                self.proxy_model.setTagsFilter(self.tags_view.item(row, 1).data(QtCore.Qt.DisplayRole))
+            else:
+                self.proxy_model.clearTagsFilter(self.tags_view.item(row, 1).data(QtCore.Qt.DisplayRole))
+            item.setData(QtCore.Qt.UserRole, currentState)
 
     def add_item_window(self):
         self.ad.author_line.clear()
@@ -186,35 +237,39 @@ class AsiMaya(QtWidgets.QMainWindow):
         self.ad.command_text.clear()
         self.ad.double_click_command_text.clear()
         self.ad.annotation_text.setText("Requested\t: \nPurpose \t: ")
-
+        self.ad.author_line.setFocus()
         self.ad.exec_()
     
     def edit_item_window(self):
-        current_item = self.table_view.currentIndex()
-        
-        if not current_item.isValid():
-            return
+        proxy_model = self.table_view.model()
+        model = proxy_model.sourceModel()
+        current_index = self.table_view.currentIndex()
+        index = proxy_model.mapToSource(current_index)
+        row = index.row()
 
-        label = current_item.data(self.label_role)
-        imageOverlayLabel = current_item.data(self.image_label_role)
-        image = current_item.data(self.image_role)
-        sourceType = current_item.data(self.source_type_role)
-        command = current_item.data(self.command_role)
-        doubleClickCommand = current_item.data(self.double_command_role)
-        annotation = current_item.data(self.annotation_role)
+        icon = model.data(index=model.index(row, 0), role=QtCore.Qt.DisplayRole)
+        label = model.data(index=model.index(row, 1), role=QtCore.Qt.DisplayRole)
+        author = model.data(index=model.index(row, 2), role=QtCore.Qt.DisplayRole)
+        meta = model.data(index=model.index(row, 4), role=QtCore.Qt.DisplayRole)
+        imageoverlay = meta["overlayLabel"]
+        source_type = meta["sourceType"]
+        command = meta["command"]
+        double_command = meta["doubleCommand"]
+        annotation = meta["annotation"]
 
-        self.ad.label_line.setText(label)
-        if sourceType == "python":
-            self.ad.python_radio_btn.setChecked(True)
+        if source_type == "python":
+            self.ed.python_radio_btn.setChecked(True)
         else:
-            self.ad.mel_radio_btn.setChecked(True)
-        self.ad.overlay_label_line.setText(imageOverlayLabel)
-        self.ad.image_line.setText(image)
-        self.ad.command_text.setPlainText(command)
-        self.ad.double_click_command_text.setPlainText(doubleClickCommand)
-        self.ad.annotation_text.setPlainText(annotation)
-
-        self.ad.exec_()
+            self.ed.mel_radio_btn.setChecked(True)
+        self.ed.image_line.setText(icon)
+        self.ed.label_line.setText(label)
+        self.ed.author_line.setText(author)
+        self.ed.overlay_label_line.setText(imageoverlay)
+        self.ed.command_text.setPlainText(command)
+        self.ed.double_click_command_text.setPlainText(double_command)
+        self.ed.annotation_text.setPlainText(annotation)
+        self.ed.author_line.setFocus()
+        self.ed.exec_()
     
     def add_item(self):
         author = self.ad.author_line.text()
@@ -240,22 +295,54 @@ class AsiMaya(QtWidgets.QMainWindow):
         data.append(label)
         data.append(author)
         data.append(list())
-        meta = {"sourceType" : source_type,
-                "command" : command,
-                "doubleCommand" : double_click_command,
-                "annotation" : annotation,
-                "overlayLabel" : overlay_label}
+        meta = {   
+            u"sourceType" : source_type,
+            u"command" : command,
+            u"doubleCommand" : double_click_command,
+            u"annotation" : annotation,
+            u"overlayLabel" : overlay_label
+        }
         data.append(meta)
-        model = self.table_view.model()
+        proxy_model = self.table_view.model()
+        model = proxy_model.sourceModel()
         model.insertRows(position=model.rowCount(), data=data)
 
     def edit_item(self):
-        print "TODO"
+        icon = self.ed.image_line.text()
+        label = self.ed.label_line.text()
+        author = self.ed.author_line.text()
+        if self.ed.mel_radio_btn.isChecked():
+            source_type = "mel"
+        elif self.ed.python_radio_btn.isChecked():
+            source_type = "python"
+        overlay_label = self.ed.overlay_label_line.text()
+        command = self.ed.command_text.toPlainText()
+        double_click_command = self.ed.double_click_command_text.toPlainText()
+        annotation = self.ed.annotation_text.toPlainText()
+        meta = {   
+            u"sourceType" : source_type,
+            u"command" : command,
+            u"doubleCommand" : double_click_command,
+            u"annotation" : annotation,
+            u"overlayLabel" : overlay_label
+        }
+
+        proxy_model = self.table_view.model()
+        proxy_index = self.table_view.currentIndex()
+        index = proxy_model.mapToSource(proxy_index)
+        model = proxy_model.sourceModel()
+        row = index.row()
+        model.setData(index=model.index(row, 0), value=icon, role=QtCore.Qt.EditRole)
+        model.setData(index=model.index(row, 1), value=label, role=QtCore.Qt.EditRole)
+        model.setData(index=model.index(row, 2), value=author, role=QtCore.Qt.EditRole)
+        model.setData(index=model.index(row, 4), value=meta, role=QtCore.Qt.EditRole)
 
     def delete_item(self):
-        model = self.table_view.model()
-        current_index = self.table_view.currentIndex()
-        pos = current_index.row()
+        proxy_model = self.table_view.model()
+        model = proxy_model.sourceModel()
+        proxy_index = self.table_view.currentIndex()
+        source_index = proxy_model.mapToSource(proxy_index)
+        pos = source_index.row()
         model.removeRows(pos)
         tags_set = set()
         for row in range(model.rowCount()):
@@ -270,22 +357,24 @@ class AsiMaya(QtWidgets.QMainWindow):
         model.setData(QtCore.QModelIndex(), colors, QtCore.Qt.UserRole)
 
     def save_json(self):
-        model = self.table_view.model()
+        proxy_model = self.table_view.model()
+        model = proxy_model.sourceModel()
+        # model = self.table_view.model()
         with open(os.path.join(os.path.dirname(__file__), "json", "colors.json"), "w") as f: 
-            json.dump(model.colors, f)
+            json.dump(model.colors, f, indent=4)
         
         data = dict()
         temp = model.scripts
         for index in range(len(temp)):
-            data[unicode(index)] = {"Icon":temp[index][0], 
-                                "Label":temp[index][1], 
-                                "Author":temp[index][2], 
-                                "Tags":temp[index][3], 
-                                "Meta":temp[index][4]}
+            data[unicode(index)] = {
+                u"Icon":temp[index][0], 
+                u"Label":temp[index][1], 
+                u"Author":temp[index][2], 
+                u"Tags":temp[index][3], 
+                u"Meta":temp[index][4]
+            }
         with open(os.path.join(os.path.dirname(__file__), "json", "maya.json"), "w") as f: 
-            json.dump(data, f)
-        pprint.pprint(data)
-        pprint.pprint(model.colors)
+            json.dump(data, f, indent=4)
 
     def load_json(self):
         with open(os.path.join(os.path.dirname(__file__), "json", "colors.json")) as f: 
@@ -293,29 +382,35 @@ class AsiMaya(QtWidgets.QMainWindow):
         
         with open(os.path.join(os.path.dirname(__file__), "json", "maya.json")) as f: 
             scripts = json.load(f)
-        model = self.table_view.model()
+        proxy_model = self.table_view.model()
+        model = proxy_model.sourceModel()
         model.reset()
         model.colors = colors
 
-        for index in sorted([x for x in scripts]):
+        for index in sorted([int(x) for x in scripts]):
             data = list()
-            data.append(scripts[index]["Icon"])
-            data.append(scripts[index]["Label"])
-            data.append(scripts[index]["Author"])
-            data.append(scripts[index]["Tags"])
-            data.append(scripts[index]["Meta"])
+            data.append(scripts[str(index)]["Icon"])
+            data.append(scripts[str(index)]["Label"])
+            data.append(scripts[str(index)]["Author"])
+            data.append(scripts[str(index)]["Tags"])
+            data.append(scripts[str(index)]["Meta"])
             model.insertRows(position=int(index), data=data)
-        pprint.pprint(scripts)
-        pprint.pprint(colors)
 
-    def run_click_command(self, index):
+    def run_command(self, index, clickType):
         if not index.isValid():
             return
-        model = self.table_view.model()
+        proxy_model = self.table_view.model()
+        index = proxy_model.mapToSource(index)
+        model = proxy_model.sourceModel()
         meta_data = model.data(index=model.index(index.row(), 4), role=QtCore.Qt.DisplayRole)
         
         source_type = meta_data["sourceType"]
-        command = meta_data["command"]
+        command = meta_data[clickType]
+        check = set()
+        for c in command:
+            check.add(c)
+        if check.issubset(set(["\n", " ", "\t", ""])):
+            return
         if source_type == "python":
             pm.undoInfo(openChunk=True)
             exec(command)
@@ -325,27 +420,12 @@ class AsiMaya(QtWidgets.QMainWindow):
             pm.mel.eval(command)
             pm.undoInfo(closeChunk=True)
         
-    def run_double_click_command(self, index):
-        if not index.isValid():
-            return
-        model = self.table_view.model()
-        meta_data = model.data(index=model.index(index.row(), 4), role=QtCore.Qt.DisplayRole)
-        
-        source_type = meta_data["sourceType"]
-        command = meta_data["doubleCommand"]
-        if source_type == "python":
-            pm.undoInfo(openChunk=True)
-            exec(command)
-            pm.undoInfo(closeChunk=True)
-        else:
-            pm.undoInfo(openChunk=True)
-            pm.mel.eval(command)
-            pm.undoInfo(closeChunk=True)
-
     def add_shelf_button(self, index):
         if not index.isValid():
             return
-        model = self.table_view.model()
+        proxy_model = self.table_view.model()
+        model = proxy_model.sourceModel()
+        index = proxy_model.mapToSource(index)
 
         icon = model.data(index=model.index(index.row(), 0), role=QtCore.Qt.DisplayRole)
         label = model.data(index=model.index(index.row(), 1), role=QtCore.Qt.DisplayRole)
