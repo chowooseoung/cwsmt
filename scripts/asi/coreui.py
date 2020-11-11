@@ -84,6 +84,8 @@ class AsiModel(QtCore.QAbstractTableModel):
             return QtCore.Qt.AlignCenter
         if role == QtCore.Qt.UserRole:
             return self.colors
+        if role == QtCore.Qt.ToolTipRole:
+            return self.scripts[index.row()][4]
 
     def setData(self, index, value, role=None):
         if role == QtCore.Qt.UserRole:
