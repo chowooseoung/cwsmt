@@ -256,6 +256,8 @@ class AsiMaya(QtWidgets.QMainWindow):
         model = proxy_model.sourceModel()
         current_index = self.table_view.currentIndex()
         index = proxy_model.mapToSource(current_index)
+        if not index.isValid():
+            return
         row = index.row()
 
         icon = model.data(index=model.index(row, 0), role=QtCore.Qt.DisplayRole)
@@ -352,6 +354,8 @@ class AsiMaya(QtWidgets.QMainWindow):
         proxy_model = self.table_view.model()
         model = proxy_model.sourceModel()
         proxy_index = self.table_view.currentIndex()
+        if not proxy_index.isValid():
+            return 
         source_index = proxy_model.mapToSource(proxy_index)
         pos = source_index.row()
         model.removeRows(pos)
