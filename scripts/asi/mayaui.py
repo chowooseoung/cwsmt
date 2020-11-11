@@ -396,8 +396,8 @@ class AsiMaya(QtWidgets.QMainWindow):
             scripts = json.load(f)
         proxy_model = self.table_view.model()
         model = proxy_model.sourceModel()
-        model.reset()
         model.colors = colors
+        model.reset()
 
         for index in sorted([int(x) for x in scripts]):
             data = list()

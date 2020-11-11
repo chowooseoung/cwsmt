@@ -69,6 +69,7 @@ class AsiModel(QtCore.QAbstractTableModel):
     def reset(self):
         self.beginResetModel()
         self.scripts = list() 
+        self.dataChanged.emit(QtCore.QModelIndex(), QtCore.QModelIndex())
         self.endResetModel()
 
     def rowCount(self, index=QtCore.QModelIndex()):
@@ -131,6 +132,7 @@ class AsiModel(QtCore.QAbstractTableModel):
         for row in range(rows):
             self.scripts.insert(position+row, data)
         self.dataChanged.emit(index, index)
+
         self.endInsertRows()
         return True
     
