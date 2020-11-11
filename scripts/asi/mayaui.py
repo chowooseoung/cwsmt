@@ -416,7 +416,7 @@ class AsiMaya(QtWidgets.QMainWindow):
         proxy_model = self.table_view.model()
         index = proxy_model.mapToSource(index)
         model = proxy_model.sourceModel()
-        meta_data = model.data(index=model.index(index.row(), 4), role=QtCore.Qt.DisplayRole)
+        meta_data = model.data(index=model.index(index.row(), 5), role=QtCore.Qt.DisplayRole)
         
         source_type = meta_data["sourceType"]
         command = meta_data[clickType]
