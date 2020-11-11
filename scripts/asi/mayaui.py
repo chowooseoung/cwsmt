@@ -139,6 +139,7 @@ class AsiMaya(QtWidgets.QMainWindow):
         self.table_view.setItemDelegate(AsiTableDelegate())
         self.table_view.setSortingEnabled(True)
         self.table_view.horizontalHeader().hideSection(4)
+        self.table_view.horizontalHeader().hideSection(5)
         
         self.view_mode_action_group = QtWidgets.QActionGroup(self)
         self.view_mode_action_group.addAction(self.action_table)
@@ -184,9 +185,6 @@ class AsiMaya(QtWidgets.QMainWindow):
             self.list_view.show()
 
     def table_view_menu(self, point):
-        index = self.table_view.indexAt(point)
-        if not index.isValid():
-            return
         context_menu = QtWidgets.QMenu()
         context_menu.addActions([self.add_item_action, self.edit_item_action, self.delete_item_action])
         context_menu.exec_(self.table_view.mapToGlobal(point))
@@ -198,17 +196,30 @@ class AsiMaya(QtWidgets.QMainWindow):
         self.tags_view.setRowCount(len(colors))
         self.tags_view.setColumnCount(2)
         for index, key in enumerate(colors):
-            cell_widget = QtWidgets.QWidget()
-            layout = QtWidgets.QHBoxLayout(cell_widget)
-            layout.setAlignment(QtCore.Qt.AlignCenter)
-            layout.setContentsMargins(0, 0, 0, 0)
+            check_cell = QtWidgets.QWidget()
+            check_layout = QtWidgets.QHBoxLayout(check_cell)
+            check_layout.setAlignment(QtCore.Qt.AlignCenter)
+            check_layout.setContentsMargins(0, 0, 0, 0)
             checkbox = QtWidgets.QCheckBox()
             checkbox.stateChanged[int].connect(partial(self.check_tags, txt=key))
+            check_layout.addWidget(checkbox)
 
-            layout.addWidget(checkbox)
-            tag = QtWidgets.QTableWidgetItem(key)
-            self.tags_view.setCellWidget(index, 0, cell_widget)
-            self.tags_view.setItem(index, 1, tag)
+            tag_cell = QtWidgets.QWidget()
+            tag_layout = QtWidgets.QHBoxLayout(tag_cell)
+            tag_layout.setAlignment(QtCore.Qt.AlignLeft)
+            tag_layout.setContentsMargins(4, 4, 4, 4)
+            frame = QtWidgets.QFrame()
+            frame.setStyleSheet("QFrame {{\nbackground-color: hsva({0}, 100, 222, 255);\nborder-radius: 4px;\n}}".format(colors[key]))
+            frame.setFixedHeight(20)
+            label = QtWidgets.QLabel(key)
+            label.setStyleSheet("QLabel {\ncolor: #000000;}")
+            label.setAlignment(QtCore.Qt.AlignCenter)
+            frame_layout = QtWidgets.QHBoxLayout(frame)
+            frame_layout.addWidget(label)
+            frame_layout.setContentsMargins(2, 0, 2, 2)
+            tag_layout.addWidget(frame)
+            self.tags_view.setCellWidget(index, 0, check_cell)
+            self.tags_view.setCellWidget(index, 1, tag_cell)
 
     def check_tags(self, isChecked, txt):
         if bool(isChecked) == True:
@@ -250,12 +261,12 @@ class AsiMaya(QtWidgets.QMainWindow):
         icon = model.data(index=model.index(row, 0), role=QtCore.Qt.DisplayRole)
         label = model.data(index=model.index(row, 1), role=QtCore.Qt.DisplayRole)
         author = model.data(index=model.index(row, 2), role=QtCore.Qt.DisplayRole)
-        meta = model.data(index=model.index(row, 4), role=QtCore.Qt.DisplayRole)
+        annotation = model.data(index=model.index(row, 4), role=QtCore.Qt.DisplayRole)
+        meta = model.data(index=model.index(row, 5), role=QtCore.Qt.DisplayRole)
         imageoverlay = meta["overlayLabel"]
         source_type = meta["sourceType"]
         command = meta["command"]
         double_command = meta["doubleCommand"]
-        annotation = meta["annotation"]
 
         if source_type == "python":
             self.ed.python_radio_btn.setChecked(True)
@@ -295,11 +306,11 @@ class AsiMaya(QtWidgets.QMainWindow):
         data.append(label)
         data.append(author)
         data.append(list())
+        data.append(annotation)
         meta = {   
             u"sourceType" : source_type,
             u"command" : command,
             u"doubleCommand" : double_click_command,
-            u"annotation" : annotation,
             u"overlayLabel" : overlay_label
         }
         data.append(meta)
@@ -323,7 +334,6 @@ class AsiMaya(QtWidgets.QMainWindow):
             u"sourceType" : source_type,
             u"command" : command,
             u"doubleCommand" : double_click_command,
-            u"annotation" : annotation,
             u"overlayLabel" : overlay_label
         }
 
@@ -335,7 +345,8 @@ class AsiMaya(QtWidgets.QMainWindow):
         model.setData(index=model.index(row, 0), value=icon, role=QtCore.Qt.EditRole)
         model.setData(index=model.index(row, 1), value=label, role=QtCore.Qt.EditRole)
         model.setData(index=model.index(row, 2), value=author, role=QtCore.Qt.EditRole)
-        model.setData(index=model.index(row, 4), value=meta, role=QtCore.Qt.EditRole)
+        model.setData(index=model.index(row, 4), value=annotation, role=QtCore.Qt.EditRole)
+        model.setData(index=model.index(row, 5), value=meta, role=QtCore.Qt.EditRole)
 
     def delete_item(self):
         proxy_model = self.table_view.model()
@@ -371,7 +382,8 @@ class AsiMaya(QtWidgets.QMainWindow):
                 u"Label":temp[index][1], 
                 u"Author":temp[index][2], 
                 u"Tags":temp[index][3], 
-                u"Meta":temp[index][4]
+                u"Annotation":temp[index][4], 
+                u"Meta":temp[index][5]
             }
         with open(os.path.join(os.path.dirname(__file__), "json", "maya.json"), "w") as f: 
             json.dump(data, f, indent=4)
@@ -393,8 +405,10 @@ class AsiMaya(QtWidgets.QMainWindow):
             data.append(scripts[str(index)]["Label"])
             data.append(scripts[str(index)]["Author"])
             data.append(scripts[str(index)]["Tags"])
+            data.append(scripts[str(index)]["Annotation"])
             data.append(scripts[str(index)]["Meta"])
             model.insertRows(position=int(index), data=data)
+        self.proxy_model.clearTagsFilters()
 
     def run_command(self, index, clickType):
         if not index.isValid():
@@ -429,12 +443,12 @@ class AsiMaya(QtWidgets.QMainWindow):
 
         icon = model.data(index=model.index(index.row(), 0), role=QtCore.Qt.DisplayRole)
         label = model.data(index=model.index(index.row(), 1), role=QtCore.Qt.DisplayRole)
-        meta = model.data(index=model.index(index.row(), 4), role=QtCore.Qt.DisplayRole)
+        annotation = model.data(index=model.index(index.row(), 4), role=QtCore.Qt.DisplayRole)
+        meta = model.data(index=model.index(index.row(), 5), role=QtCore.Qt.DisplayRole)
         imageoverlay_label = meta["overlayLabel"]
         source_type = meta["sourceType"]
         command = meta["command"]
         double_command = meta["doubleCommand"]
-        annotation = meta["annotation"]
 
         current_tab = pm.tabLayout("ShelfLayout", query=True, selectTab=True)
 

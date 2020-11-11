@@ -58,7 +58,7 @@ class AsiModel(QtCore.QAbstractTableModel):
     def __init__(self, scripts=None, colors=None, parent=None):
         super(AsiModel, self).__init__(parent)
         if scripts is None: 
-            self.scripts = [["icon", "label", "author", list(), dict()]] # [[icon, label, author, tags, meta], ...]
+            self.scripts = [["icon", "label", "author", list(), "annotation", dict()]] # [[icon, label, author, annotation, tags, meta], ...]
         else: 
             self.scripts = scripts 
         if colors is None:
@@ -75,7 +75,7 @@ class AsiModel(QtCore.QAbstractTableModel):
         return len(self.scripts)
     
     def columnCount(self, index=QtCore.QModelIndex()):
-        return 5
+        return 6
     
     def data(self, index, role):
         if role == QtCore.Qt.DisplayRole or role == QtCore.Qt.EditRole:
@@ -150,47 +150,52 @@ class AsiProxyModel(QtCore.QSortFilterProxyModel):
     def setLineFilter(self, regex):
         if isinstance(regex, unicode):
             if regex:
+                regex = regex.lower()
                 regex = re.compile(regex)
                 temp = list()
                 temp.append(regex)
                 self.line_filter = temp
             else:
                 self.line_filter = list()
-            print "line filter", self.line_filter
         self.invalidateFilter()
 
     def setTagsFilter(self, tag):
         if isinstance(tag, unicode):
+            tag = tag.lower()
             regex = re.compile(tag)
-        print "settagfilter"
         self.tag_filter.append(regex)
         self.invalidateFilter()
 
     def clearTagsFilter(self, tag):
         if isinstance(tag, unicode):
+            tag = tag.lower()
             regex = re.compile(tag)
         if regex in self.tag_filter:
-            print "cleartagfilter"
             self.tag_filter.remove(regex)
+        self.invalidateFilter()
+
+    def clearTagsFilters(self):
+        self.tag_filter = list()
         self.invalidateFilter()
 
     def filterAcceptsRow(self, source_row, source_parent):
         if (not self.line_filter) and (not self.tag_filter):
             return True
-        label, author, tags = range(1, 4)
+        label, author, tags, annotation = (1, 2, 3, 4)
 
         def filtering(reg, data, results):
             if isinstance(data, list):
                 for d in data:
                     filtering(reg, d, results)
             else:
+                data = data.lower()
                 results.append(reg.search(data))
         
         tags_results = list()
         line_results = list()
 
         data = list()
-        for column in [label, author, tags]:
+        for column in [label, author, tags, annotation]:
             index = self.sourceModel().index(source_row, column, source_parent)
             if index.isValid():
                 data.append(self.sourceModel().data(index, QtCore.Qt.DisplayRole))
