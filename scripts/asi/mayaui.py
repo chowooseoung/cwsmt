@@ -195,7 +195,7 @@ class AsiMaya(QtWidgets.QMainWindow):
         colors = self.table_view.model().sourceModel().colors
         self.tags_view.setRowCount(len(colors))
         self.tags_view.setColumnCount(2)
-        for index, key in enumerate(colors):
+        for index, key in enumerate(sorted(colors)):
             check_cell = QtWidgets.QWidget()
             check_layout = QtWidgets.QHBoxLayout(check_cell)
             check_layout.setAlignment(QtCore.Qt.AlignCenter)

@@ -198,17 +198,22 @@ class AsiProxyModel(QtCore.QSortFilterProxyModel):
         tags_results = list()
         line_results = list()
 
-        data = list()
+        tags_data = list()
+        line_data = list()
         for column in [label, author, tags, annotation]:
             index = self.sourceModel().index(source_row, column, source_parent)
             if index.isValid():
-                data.append(self.sourceModel().data(index, QtCore.Qt.DisplayRole))
+                line_data.append(self.sourceModel().data(index, QtCore.Qt.DisplayRole))
+        
+        index = self.sourceModel().index(source_row, tags, source_parent)
+        if index.isValid():
+            tags_data.append(self.sourceModel().data(index, QtCore.Qt.DisplayRole))
         
         for reg in self.tag_filter:
-            filtering(reg, data, tags_results)
+            filtering(reg, tags_data, tags_results)
         
         for reg in self.line_filter:
-            filtering(reg, data, line_results)
+            filtering(reg, line_data, line_results)
         
         if self.tag_filter:
             tag_bool = any(tags_results)
