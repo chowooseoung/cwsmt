@@ -58,7 +58,7 @@ class AsiModel(QtCore.QAbstractTableModel):
     def __init__(self, scripts=None, colors=None, parent=None):
         super(AsiModel, self).__init__(parent)
         if scripts is None: 
-            self.scripts = [["icon", "label", "author", list(), "annotation", dict()]] # [[icon, label, author, annotation, tags, meta], ...]
+            self.scripts = [["icon", "label", "author", list(), "annotation", dict()]] # [[icon, label, author, tags, annotation, meta], ...]
         else: 
             self.scripts = scripts 
         if colors is None:
@@ -401,11 +401,8 @@ class AsiTags(QtWidgets.QWidget):
             return
         check_list = set()
         for s in txt:
-            if " " == s:
-                check_list.add(True)
-            else:
-                check_list.add(False)
-        if len(check_list) > 1:
+            check_list.add(s)
+        if check_list.issubset(set(["\n", " ", "\t", ""])):
             return
         if txt in self.tags:
             return

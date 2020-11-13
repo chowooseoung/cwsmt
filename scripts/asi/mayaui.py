@@ -464,3 +464,6 @@ class AsiMaya(QtWidgets.QMainWindow):
                         sourceType=source_type,
                         annotation=annotation)
                 
+    def showEvent(self, e):
+        super(AsiMaya, self).showEvent(e)
+        self.load_json()
