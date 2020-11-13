@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from Qt import QtWidgets, QtCore, QtGui, QtCompat
-from coreui import AsiListView, AsiTableView, AsiModel, AsiProxyModel, AsiTableDelegate
+from coreui import SiListView, SiTableView, SiModel, SiProxyModel, SiTableDelegate
 from mworkspacecontrol import MWorkspaceControl
 from functools import partial
 
@@ -11,14 +11,14 @@ import os
 import pprint
 
 
-class AsiMayaTableView(AsiTableView):
+class SiMayaTableView(SiTableView):
 
-    asi_clicked = QtCore.Signal(QtCore.QModelIndex)
-    asi_double_clicked = QtCore.Signal(QtCore.QModelIndex)
-    asi_shelf_clicked = QtCore.Signal(QtCore.QModelIndex)
+    si_clicked = QtCore.Signal(QtCore.QModelIndex)
+    si_double_clicked = QtCore.Signal(QtCore.QModelIndex)
+    si_shelf_clicked = QtCore.Signal(QtCore.QModelIndex)
 
     def __init__(self, parent=None):
-        super(AsiMayaTableView, self).__init__(parent=parent)
+        super(SiMayaTableView, self).__init__(parent=parent)
         self.timer = QtCore.QTimer(self)
         self.timer.setInterval(250)
         self.timer.setSingleShot(True)
@@ -28,19 +28,19 @@ class AsiMayaTableView(AsiTableView):
         self.index2 = None
 
     def mousePressEvent(self, event):
-        super(AsiMayaTableView, self).mousePressEvent(event)
+        super(SiMayaTableView, self).mousePressEvent(event)
         if event.button() == QtCore.Qt.LeftButton:
             self.index1 = self.indexAt(event.pos())
             if self.index1.isValid():
                 if event.modifiers() == (QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier):
-                    self.asi_shelf_clicked.emit(self.index1)
+                    self.si_shelf_clicked.emit(self.index1)
                     return
             self.click_number += 1
             if not self.timer.isActive():
                 self.timer.start()
 
     def mouseDoubleClickEvent(self, event):
-        super(AsiMayaTableView, self).mouseDoubleClickEvent(event)
+        super(SiMayaTableView, self).mouseDoubleClickEvent(event)
         if event.button() == QtCore.Qt.LeftButton:
             if self.timer.isActive():
                 self.click_number += 1
@@ -48,22 +48,22 @@ class AsiMayaTableView(AsiTableView):
         
     def timeout(self):
         if self.click_number == 1:
-            self.asi_clicked.emit(self.index1)
+            self.si_clicked.emit(self.index1)
         elif (self.click_number == 2) & (self.index1 == self.index2):
-            self.asi_double_clicked.emit(self.index1)
+            self.si_double_clicked.emit(self.index1)
         self.click_number = 0
 
 
-class AsiMayaListView(AsiListView):
+class SiMayaListView(SiListView):
     
     def __init__(self, parent=None):
-        super(AsiMayaListView, self).__init__(parent=parent)
+        super(SiMayaListView, self).__init__(parent=parent)
     
     def mousePressEvent(self, event):
-        super(AsiMayaListView, self).mousePressEvent(event)
+        super(SiMayaListView, self).mousePressEvent(event)
 
 
-class AsiMaya(QtWidgets.QMainWindow):
+class SiMaya(QtWidgets.QMainWindow):
     
     __permission = None
     ui_admin_instance = None
@@ -99,7 +99,7 @@ class AsiMaya(QtWidgets.QMainWindow):
         if self.workspace_control_instance.exists():
             self.workspace_control_instance.restore(self)
         else:
-            self.workspace_control_instance.create(self.__class__.__name__, self, ui_script=self.get_ui_script(permission=permission))
+            self.workspace_control_instance.create("Scripts Interface", self, ui_script=self.get_ui_script(permission=permission))
 
     def show_workspace_control(self):
         self.workspace_control_instance.set_visible(True)
@@ -113,7 +113,7 @@ class AsiMaya(QtWidgets.QMainWindow):
         self.__permission = p
 
     def __init__(self, permission="guest", parent=None):
-        super(AsiMaya, self).__init__(parent=parent)
+        super(SiMaya, self).__init__(parent=parent)
         self.permission = permission
 
         self.setObjectName("{0}{1}".format(self.__class__.__name__, self.permission))
@@ -129,14 +129,14 @@ class AsiMaya(QtWidgets.QMainWindow):
         QtCompat.loadUi(os.path.join(os.path.dirname(__file__), "ui", "maya_item.ui"), self.ad)
         QtCompat.loadUi(os.path.join(os.path.dirname(__file__), "ui", "maya_item.ui"), self.ed)
 
-        self.table_view = AsiMayaTableView()
-        self.list_view = AsiMayaListView()
+        self.table_view = SiMayaTableView()
+        self.list_view = SiMayaListView()
         self.view_layout.addWidget(self.table_view)
         self.view_layout.addWidget(self.list_view)
-        self.proxy_model = AsiProxyModel()
-        self.proxy_model.setSourceModel(AsiModel())
+        self.proxy_model = SiProxyModel()
+        self.proxy_model.setSourceModel(SiModel())
         self.table_view.setModel(self.proxy_model)
-        self.table_view.setItemDelegate(AsiTableDelegate())
+        self.table_view.setItemDelegate(SiTableDelegate())
         self.table_view.setSortingEnabled(True)
         self.table_view.horizontalHeader().hideSection(4)
         self.table_view.horizontalHeader().hideSection(5)
@@ -164,9 +164,9 @@ class AsiMaya(QtWidgets.QMainWindow):
         self.tags_view.cellChanged.connect(self.tags_filter)
 
         if self.permission == "guest":
-            self.table_view.asi_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="command"))
-            self.table_view.asi_double_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="doubleCommand"))
-            self.table_view.asi_shelf_clicked[QtCore.QModelIndex].connect(self.add_shelf_button)
+            self.table_view.si_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="command"))
+            self.table_view.si_double_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="doubleCommand"))
+            self.table_view.si_shelf_clicked[QtCore.QModelIndex].connect(self.add_shelf_button)
             return
         self.ad.accepted.connect(self.add_item)
         self.ed.accepted.connect(self.edit_item)
@@ -252,6 +252,7 @@ class AsiMaya(QtWidgets.QMainWindow):
         self.ad.exec_()
     
     def edit_item_window(self):
+        self.ed.setWindowTitle("edit item")
         proxy_model = self.table_view.model()
         model = proxy_model.sourceModel()
         current_index = self.table_view.currentIndex()
@@ -465,5 +466,5 @@ class AsiMaya(QtWidgets.QMainWindow):
                         annotation=annotation)
                 
     def showEvent(self, e):
-        super(AsiMaya, self).showEvent(e)
+        super(SiMaya, self).showEvent(e)
         self.load_json()

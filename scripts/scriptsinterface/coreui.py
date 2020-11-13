@@ -7,10 +7,10 @@ import random
 import re
 
 
-class AsiTableView(QtWidgets.QTableView):
+class SiTableView(QtWidgets.QTableView):
 
     def __init__(self, parent=None):
-        super(AsiTableView, self).__init__(parent=parent)
+        super(SiTableView, self).__init__(parent=parent)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.horizontalHeader().setStretchLastSection(True)
         self.horizontalHeader().setDefaultSectionSize(40)
@@ -20,21 +20,21 @@ class AsiTableView(QtWidgets.QTableView):
         self.setSelectionBehavior(QtWidgets.QTableView.SelectRows)
 
 
-class AsiListView(QtWidgets.QListView):
+class SiListView(QtWidgets.QListView):
 
     def __init__(self, parent=None):
-        super(AsiListView, self).__init__(parent=parent)
+        super(SiListView, self).__init__(parent=parent)
 
     def mouseReleaseEvent(self, event):
-        super(AsiListView, self).mouseReleaseEvent(event)
+        super(SiListView, self).mouseReleaseEvent(event)
         event.ignore()
 
     def mousePressEvent(self, event):
-        super(AsiListView, self).mousePressEvent(event)
+        super(SiListView, self).mousePressEvent(event)
         event.ignore()
 
 
-class AsiModel(QtCore.QAbstractTableModel):
+class SiModel(QtCore.QAbstractTableModel):
     
     __scripts = None
     __colors = None
@@ -56,7 +56,7 @@ class AsiModel(QtCore.QAbstractTableModel):
         self.__colors = c
 
     def __init__(self, scripts=None, colors=None, parent=None):
-        super(AsiModel, self).__init__(parent)
+        super(SiModel, self).__init__(parent)
         if scripts is None: 
             self.scripts = [["icon", "label", "author", list(), "annotation", dict()]] # [[icon, label, author, tags, annotation, meta], ...]
         else: 
@@ -145,7 +145,7 @@ class AsiModel(QtCore.QAbstractTableModel):
         return True
 
 
-class AsiProxyModel(QtCore.QSortFilterProxyModel):    
+class SiProxyModel(QtCore.QSortFilterProxyModel):    
     def __init__(self, *args, **kwargs):
         QtCore.QSortFilterProxyModel.__init__(self, *args, **kwargs)
         self.line_filter = list()
@@ -227,10 +227,10 @@ class AsiProxyModel(QtCore.QSortFilterProxyModel):
         return all([tag_bool, line_bool])
 
 
-class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
+class SiTableDelegate(QtWidgets.QStyledItemDelegate):
 
     def __init__(self, parent=None):
-        super(AsiTableDelegate, self).__init__(parent)
+        super(SiTableDelegate, self).__init__(parent)
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
@@ -240,7 +240,7 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
             icon = QtGui.QIcon(index.data())
             icon.paint(painter, option.rect, QtCore.Qt.AlignCenter)
         elif index.column() == 3: 
-            editor = AsiTags()
+            editor = SiTags()
 
             if option.state & QtWidgets.QStyle.State_Selected:
                 editor.setBackgroundRole(QtGui.QPalette.ColorRole.Highlight)
@@ -261,7 +261,7 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
     #     if index.column() == 1:
     #         return QtWidgets.QStyledItemDelegate.sizeHint(self, option, index)
     #     elif index.column() == 3:
-    #         editor = AsiTags()
+    #         editor = SiTags()
     #         editor.colors = index.model().sourceModel().colors
     #         editor.setup_ui(index.data())
     #         return editor.sizeHint()
@@ -270,12 +270,12 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         if index.column() == 3:
-            editor = AsiTags(parent=parent)
+            editor = SiTags(parent=parent)
             editor.colors = index.model().sourceModel().colors
             editor.setup_ui(index.data())
             editor.vis_button(switch=True)
             return editor
-            # return AsiTags(parent=parent)
+            # return SiTags(parent=parent)
         else:
             return QtWidgets.QStyledItemDelegate.createEditor(self, parent, option, index)
 
@@ -308,7 +308,7 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
             QtWidgets.QStyledItemDelegate.setModelData(self, editor, model, index)
 
 
-class AsiTags(QtWidgets.QWidget):
+class SiTags(QtWidgets.QWidget):
 
     __colors = None
 
@@ -321,7 +321,7 @@ class AsiTags(QtWidgets.QWidget):
         self.__colors = c
 
     def __init__(self, parent=None):
-        super(AsiTags, self).__init__(parent)
+        super(SiTags, self).__init__(parent)
         
         self.tags = list()
         self.x_buttons = list()
