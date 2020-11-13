@@ -10,5 +10,5 @@
 * 마야 shelves에 button을 등록할수있습니다.
 * table view를 정렬, 검색, 필터링 할수있습니다.
 
-[Imgur](https://i.imgur.com/Ml6TEwK.png)
-[Imgur](https://i.imgur.com/dYV2p9N.png)
+![Imgur](https://i.imgur.com/Ml6TEwK.png)
+![Imgur](https://i.imgur.com/dYV2p9N.png)
