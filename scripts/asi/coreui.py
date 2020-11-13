@@ -232,14 +232,9 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
 
     def paint(self, painter, option, index):
         if index.column() == 0:
-            # proxy_model = index.model()
-            # source_index = proxy_model.mapToSource(index)
-
             icon = QtGui.QIcon(index.data())
             icon.paint(painter, option.rect, QtCore.Qt.AlignCenter)
         elif index.column() == 3: 
-            # proxy_model = index.model()
-            # source_index = proxy_model.mapToSource(index)
             editor = AsiTags()
 
             if option.state & QtWidgets.QStyle.State_Selected:
@@ -270,8 +265,6 @@ class AsiTableDelegate(QtWidgets.QStyledItemDelegate):
 
     def createEditor(self, parent, option, index):
         if index.column() == 3:
-            # proxy_model = index.model()
-            # source_index = proxy_model.mapToSource(index)
             editor = AsiTags(parent=parent)
             editor.colors = index.model().sourceModel().colors
             editor.setup_ui(index.data())

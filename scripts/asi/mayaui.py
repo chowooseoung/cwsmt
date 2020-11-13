@@ -69,8 +69,8 @@ class AsiMaya(QtWidgets.QMainWindow):
     ui_admin_instance = None
     ui_guest_instance = None
 
-    python_icon = "pythonFamily.png"
-    mel_icon = "commandButton.png"
+    python_icon = ":/pythonFamily.png"
+    mel_icon = ":/commandButton.png"
 
     @classmethod
     def display(cls, permission):
@@ -304,7 +304,7 @@ class AsiMaya(QtWidgets.QMainWindow):
         annotation = self.ad.annotation_text.toPlainText()
         
         data = list()
-        data.append(":{0}".format(image))
+        data.append(image)
         data.append(label)
         data.append(author)
         data.append(list())
@@ -374,7 +374,6 @@ class AsiMaya(QtWidgets.QMainWindow):
     def save_json(self):
         proxy_model = self.table_view.model()
         model = proxy_model.sourceModel()
-        # model = self.table_view.model()
         with open(os.path.join(os.path.dirname(__file__), "json", "colors.json"), "w") as f: 
             json.dump(model.colors, f, indent=4)
         
@@ -431,7 +430,7 @@ class AsiMaya(QtWidgets.QMainWindow):
             return
         if source_type == "python":
             pm.undoInfo(openChunk=True)
-            exec(command)
+            pm.evalDeferred(command)
             pm.undoInfo(closeChunk=True)
         else:
             pm.undoInfo(openChunk=True)
@@ -455,11 +454,6 @@ class AsiMaya(QtWidgets.QMainWindow):
         double_command = meta["doubleCommand"]
 
         current_tab = pm.tabLayout("ShelfLayout", query=True, selectTab=True)
-
-        if icon == ":{0}".format(self.python_icon):
-            icon = self.python_icon
-        elif icon == ":{0}".format(self.mel_icon):
-            icon = self.mel_icon
 
         pm.shelfButton(parent=current_tab,
                         image=icon,
