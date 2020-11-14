@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide2 import QtWidgets, QtCore
 from shiboken2 import wrapInstance
 
 import pymel.core as pm
@@ -116,7 +116,7 @@ class NeutralPoseUI(QtWidgets.QDialog):
 
         self.obj_type_combo_box = QtWidgets.QComboBox()
         self.obj_type_combo_box.addItems(self.objType)
-        self.neutral_pose_btn = QtWidgets.QPushButton("zero out")
+        self.neutral_pose_btn = QtWidgets.QPushButton("NeutralPose")
 
     def create_layouts(self):
         main_layout = QtWidgets.QFormLayout(self)

@@ -2,9 +2,6 @@ import maya.OpenMayaUI as omui
 import maya.cmds as mc
 import maya.mel as mel
 
-import os
-import sys
-
 from PySide2 import QtWidgets, QtCore, QtGui
 from shiboken2 import wrapInstance
 
@@ -75,7 +72,7 @@ class IconManager(QtWidgets.QDialog):
             return
 
         for image in images:
-            image_path = ":{0}".format(image)
+            image_path = ":/{0}".format(image)
             image = QtGui.QImage(image_path)
             image = image.scaled(32, 32, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
             

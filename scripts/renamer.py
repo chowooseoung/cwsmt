@@ -1,4 +1,4 @@
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide2 import QtWidgets, QtCore
 from shiboken2 import wrapInstance
 
 import pymel.core as pm
@@ -75,7 +75,7 @@ class Renamer():
 
 class RenamerUI(QtWidgets.QDialog):
 
-    ui_name = "namingUI"
+    ui_name = "renamer"
 
     def __init__(self, parent=maya_main_window()):
         super(RenamerUI, self).__init__(parent)
