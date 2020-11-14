@@ -247,7 +247,10 @@ class SiMaya(QtWidgets.QMainWindow):
         self.ad.python_radio_btn.setChecked(True)
         self.ad.command_text.clear()
         self.ad.double_click_command_text.clear()
-        self.ad.annotation_text.setText("Requested\t: \nPurpose \t: ")
+        description = "{:<9} : ".format("Requested")
+        description += "\n"
+        description += "{:<9} : ".format("PurPose")
+        self.ad.annotation_text.setText(description)
         self.ad.author_line.setFocus()
         self.ad.exec_()
     
@@ -465,6 +468,6 @@ class SiMaya(QtWidgets.QMainWindow):
                         sourceType=source_type,
                         annotation=annotation)
                 
-    def showEvent(self, e):
-        super(SiMaya, self).showEvent(e)
+    def showEvent(self, event):
+        super(SiMaya, self).showEvent(event)
         self.load_json()
