@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from Qt import QtWidgets, QtCore, QtGui, QtCompat
+from Qt import QtWidgets, QtCore, QtGui
 from functools import partial
 
 import random

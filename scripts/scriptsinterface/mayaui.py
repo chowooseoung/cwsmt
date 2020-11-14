@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from Qt import QtWidgets, QtCore, QtGui, QtCompat
+from Qt import QtWidgets, QtCore, QtCompat
 from coreui import SiListView, SiTableView, SiModel, SiProxyModel, SiTableDelegate
 from mworkspacecontrol import MWorkspaceControl
 from functools import partial
@@ -8,7 +8,6 @@ from functools import partial
 import pymel.core as pm
 import json
 import os
-import pprint
 
 
 class SiMayaTableView(SiTableView):
