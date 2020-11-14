@@ -35,7 +35,7 @@ def create_inhouse_shelf():
     # scripts interface shelfbutton add inhouse shelf
     pm.shelfButton(
         parent=inhouse,  
-        image=r"D:\maya\scripts\scriptsinterface\img\scriptsinterface.png",
+        image=r"D:\maya\scripts\scriptsinterface\scriptsinterface.png",
         command='''from scriptsinterface import mayaui;mayaui.SiMaya.display("guest")''', 
         label="ScriptsInterface",
         sourceType="python",
