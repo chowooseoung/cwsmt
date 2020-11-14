@@ -1,2 +1,2 @@
 # maya
-my maya develope repository
+* my maya develope repository

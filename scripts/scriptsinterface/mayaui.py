@@ -139,6 +139,7 @@ class SiMaya(QtWidgets.QMainWindow):
         self.table_view.setSortingEnabled(True)
         self.table_view.horizontalHeader().hideSection(4)
         self.table_view.horizontalHeader().hideSection(5)
+        self.table_view.setColumnWidth(1, 60)
         
         self.view_mode_action_group = QtWidgets.QActionGroup(self)
         self.view_mode_action_group.addAction(self.action_table)

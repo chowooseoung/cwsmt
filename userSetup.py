@@ -27,7 +27,7 @@ def create_inhouse_shelf():
     custom_index = tabs.index("Custom") + 1
     pm.tabLayout(shelf_layout, edit=True, moveTab=(inhouse_index, custom_index+1))
 
-    # re select last tab
+    # re-select last tab
     tabs = pm.tabLayout(shelf_layout, query=True, childArray=True)
     index = tabs.index(last_selected_tab) + 1
     pm.tabLayout(shelf_layout, edit=True, selectTabIndex=index)
