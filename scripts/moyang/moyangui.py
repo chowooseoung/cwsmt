@@ -233,9 +233,13 @@ class Moyang(QtWidgets.QMainWindow):
         if (obj == self.custom_color_btn) and (event.type() == QtCore.QEvent.MouseButtonRelease):
             wid = QtWidgets.QApplication.instance().widgetAt(event.pos())
             color = obj.property("color")
+            p = event.pos() # relative to widget
+            gp = self.mapToGlobal(p) # relative to screen
+            rw = self.window().mapFromGlobal(gp) # relative to window
+            print p, gp, rw
             print (obj != wid)
             print color
-            print self.childAt(event.pos())
+            print self.childAt(p).objectName()
             print 
             if wid:
                 if (obj != wid) and color and wid.property("color"):
