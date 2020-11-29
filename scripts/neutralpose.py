@@ -64,7 +64,7 @@ def neutral_pose(addName, snap=False, child=False, objType=None, lastIndex=False
                 if parent_name == None:
                     pm.parent(selected_nodes[index], neutral_pose_grp[index])
                 else:
-                    pm.parent(neutral_pose_grp[i], parent_name)
+                    pm.parent(neutral_pose_grp[index], parent_name)
                     pm.parent(selected_nodes[index], neutral_pose_grp[index])
             else:
                 pm.parent(neutral_pose_grp[index], selected_nodes[index])
