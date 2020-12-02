@@ -224,7 +224,7 @@ class Moyang(QtWidgets.QMainWindow):
             self.options["TranslateSnap"] = 25
             self.options["RotateSnap"] = 15
             self.options["ScaleSnap"] = 0.1
-            self.options["MirrorFilter"] = {"L*":"R*"}
+            self.options["MirrorFilter"] = {"L":"R", "Left":"Right"}
 
         self.color1_btn.setStyleSheet("background-color:rgb({0},{1},{2})".format(*self.options["color1"]))
         self.color2_btn.setStyleSheet("background-color:rgb({0},{1},{2})".format(*self.options["color2"]))
@@ -255,6 +255,7 @@ class Moyang(QtWidgets.QMainWindow):
         self.color13_btn.color = self.options["color13"]
         self.color14_btn.color = self.options["color14"]
         self.custom_color_btn.color = None
+        self.custom_color_btn.setStyleSheet("")
 
         if self.options["Space"] == "world":
             self.options_dialog.world_radio.setChecked(True)
@@ -288,7 +289,6 @@ class Moyang(QtWidgets.QMainWindow):
         option_path = os.path.join(os.path.dirname(__file__), "json", "options.json")
         with open(option_path, "w") as f:
             json.dump(self.options, f, indent=4)
-        self.load_options()
 
     def options_window(self):
         self.load_options()
@@ -300,6 +300,9 @@ class Moyang(QtWidgets.QMainWindow):
             print "red: {0}, green: {1}, blue: {2}".format(*color.getRgb())
             self.custom_color_btn.setStyleSheet("background-color:rgb({0},{1},{2})".format(*color.getRgb()))
             self.custom_color_btn.color = color
+        else:
+            self.custom_color_btn.setStyleSheet("")
+            self.custom_color_btn.color = None
 
     def controller_controller(self, attrs):
         with UndoInfo():
@@ -694,6 +697,8 @@ class Moyang(QtWidgets.QMainWindow):
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.MouseMove and obj is self.custom_color_btn:
             if obj.color:
+                print obj is self.custom_color_btn
+                print obj.color
                 mimedata = QtCore.QMimeData()
                 mimedata.setColorData(obj.color)
                 
@@ -711,20 +716,17 @@ class Moyang(QtWidgets.QMainWindow):
                 drag.setPixmap(pixmap)
                 drag.setHotSpot(pixmap.rect().center())
                 drag.exec_(QtCore.Qt.CopyAction)
-                event.accept()
-            else:
-                event.ignore()
+                self.custom_color_btn.setDown(False)
+                return True
             
         elif event.type() == QtCore.QEvent.DragEnter:
             event.accept() if event.mimeData().hasColor() else event.ignore()
 
         elif event.type() == QtCore.QEvent.Drop:
-            obj.color = event.mimeData().colorData().getRgb()[:3]
-            obj.setStyleSheet("background-color:rgb({0},{1},{2})".format(*obj.color))
-            self.custom_color_btn.setStyleSheet("background-color:rgb(110, 110, 110)")
-            self.custom_color_btn.color = None
-            self.save_options()
-            self.custom_color_btn.setDown(False)
-            event.accept()
-            
+            if not (obj is self.custom_color_btn):
+                obj.color = event.mimeData().colorData().getRgb()[:3]
+                obj.setStyleSheet("background-color:rgb({0},{1},{2})".format(*obj.color))
+                self.save_options()
+                event.accept()
+
         return super(Moyang, self).eventFilter(obj, event)

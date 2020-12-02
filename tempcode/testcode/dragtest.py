@@ -1,5 +1,6 @@
 from PySide2 import QtWidgets, QtCore, QtGui
 from functools import partial
+
 class DragTest(QtWidgets.QMainWindow):
     
     def __init__(self):
@@ -20,7 +21,6 @@ class DragTest(QtWidgets.QMainWindow):
         self.color1_btn.color = self.color2_btn.color = None
 
         self.btn1 = QtWidgets.QPushButton()
-        self.btn1.color = (120, 120, 120)
         self.btn2 = QtWidgets.QPushButton()
         layout.addWidget(self.btn1)
         layout.addWidget(self.btn2)
@@ -39,8 +39,6 @@ class DragTest(QtWidgets.QMainWindow):
             if event.type() == QtCore.QEvent.MouseMove and obj.color:
                 mimedata = QtCore.QMimeData()
                 mimedata.setColorData(obj.color)
-                print obj.color
-                print type(obj.color)
                 
                 pixmap = QtGui.QPixmap(20, 20)
                 pixmap.fill(QtCore.Qt.transparent)
@@ -56,12 +54,17 @@ class DragTest(QtWidgets.QMainWindow):
                 drag.setPixmap(pixmap)
                 drag.setHotSpot(pixmap.rect().center())
                 drag.exec_(QtCore.Qt.CopyAction)
+                self.color1_btn.setDown(False)
+                self.color2_btn.setDown(False)
+                return True
                 
             elif event.type() == QtCore.QEvent.DragEnter:
                 event.accept() if event.mimeData().hasColor() else event.ignore()
 
             elif event.type() == QtCore.QEvent.Drop:
                 self.set_color(obj, event.mimeData().colorData())
+                self.color1_btn.setDown(False)
+                self.color2_btn.setDown(False)
                 event.accept()
                 
         return super(DragTest, self).eventFilter(obj, event)
