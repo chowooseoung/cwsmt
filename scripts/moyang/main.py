@@ -300,6 +300,11 @@ class Moyang(QtWidgets.QMainWindow):
             print "red: {0}, green: {1}, blue: {2}".format(*color.getRgb())
             self.custom_color_btn.setStyleSheet("background-color:rgb({0},{1},{2})".format(*color.getRgb()))
             self.custom_color_btn.color = color
+            shapes = [ y for x in pm.selected(type="transform") for y in x.getShapes() ]
+            for shape in shapes:
+                shape.overrideEnabled.set(True)
+                shape.overrideRGBColors.set(True)
+                shape.overrideColorRGB.set((color.getRgb()[0]/255.0, color.getRgb()[1]/255.0, color.getRgb()[2]/255.0))
         else:
             self.custom_color_btn.setStyleSheet("")
             self.custom_color_btn.color = None
@@ -697,8 +702,6 @@ class Moyang(QtWidgets.QMainWindow):
     def eventFilter(self, obj, event):
         if event.type() == QtCore.QEvent.MouseMove and obj is self.custom_color_btn:
             if obj.color:
-                print obj is self.custom_color_btn
-                print obj.color
                 mimedata = QtCore.QMimeData()
                 mimedata.setColorData(obj.color)
                 
