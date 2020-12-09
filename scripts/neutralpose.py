@@ -88,14 +88,14 @@ def undo_info(func):
 
 class NeutralPoseUI(QtWidgets.QDialog):
 
-    ui_name = "NeutralPoseUI"
+    ui_name = "neutralPoseUI"
 
     def __init__(self, parent=maya_main_window()):
         super(NeutralPoseUI, self).__init__(parent=parent)
 
         self.setObjectName(self.ui_name)
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
-        self.setWindowTitle("NeutralPose")
+        self.setWindowTitle("Neutral Pose")
 
         self.objType = ["transform", "joint", "locator", "cube"]
 

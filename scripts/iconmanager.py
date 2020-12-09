@@ -11,14 +11,14 @@ def maya_main_window():
 
 class IconManager(QtWidgets.QDialog):
 
-    ui_name = "iconManager"
+    ui_name = "iconManagerUI"
     DEFAULT_PATH = "{0}icons".format(mc.internalVar(upd=True))
 
     def __init__(self, parent=maya_main_window()):
         super(IconManager, self).__init__(parent=parent)
 
         self.setObjectName(self.ui_name)
-        self.setWindowTitle(self.ui_name)
+        self.setWindowTitle("Icon Manager")
 
         self.create_widgets()
         self.create_layouts()

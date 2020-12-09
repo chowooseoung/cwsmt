@@ -75,13 +75,13 @@ class Renamer():
 
 class RenamerUI(QtWidgets.QDialog):
 
-    ui_name = "renamer"
+    ui_name = "renamerUI"
 
     def __init__(self, parent=maya_main_window()):
         super(RenamerUI, self).__init__(parent)
 
         self.setObjectName(self.ui_name)
-        self.setWindowTitle(self.ui_name)
+        self.setWindowTitle("Renamer")
         self.setWindowFlags(self.windowFlags() ^ QtCore.Qt.WindowContextHelpButtonHint)
         self.setFixedSize(300,140)
         

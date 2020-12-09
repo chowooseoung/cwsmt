@@ -396,11 +396,24 @@ class SiMaya(QtWidgets.QMainWindow):
             json.dump(data, f, indent=4)
 
     def load_json(self):
+        if not os.path.exists(os.path.join(os.path.dirname(__file__), "json")):
+            os.mkdir(os.path.join(os.path.dirname(__file__), "json"))
+
+        if not os.path.exists(os.path.join(os.path.dirname(__file__), "json", "colors.json")):
+            with open(os.path.join(os.path.dirname(__file__), "json", "colors.json"), "w") as f: 
+                json.dump(dict(), f, indent=4)
+        
+        if not os.path.exists(os.path.join(os.path.dirname(__file__), "json", "maya.json")):
+            with open(os.path.join(os.path.dirname(__file__), "json", "maya.json"), "w") as f: 
+                json.dump(dict(), f, indent=4)
+
         with open(os.path.join(os.path.dirname(__file__), "json", "colors.json")) as f: 
             colors = json.load(f)
         
         with open(os.path.join(os.path.dirname(__file__), "json", "maya.json")) as f: 
             scripts = json.load(f)
+
+
         proxy_model = self.table_view.model()
         model = proxy_model.sourceModel()
         model.colors = colors
