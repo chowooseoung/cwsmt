@@ -1,4 +1,5 @@
 {
+    "TranslateSnap": 25, 
     "MirrorFilter": {
         "L": "R", 
         "Left": "Right"
@@ -9,11 +10,6 @@
         238
     ], 
     "Space": "object", 
-    "color8": [
-        53, 
-        19, 
-        7
-    ], 
     "color12": [
         255, 
         255, 
@@ -39,10 +35,10 @@
         0, 
         0
     ], 
-    "color11": [
-        5, 
-        200, 
-        200
+    "color5": [
+        255, 
+        255, 
+        0
     ], 
     "color4": [
         0, 
@@ -64,13 +60,17 @@
         20, 
         147
     ], 
-    "color5": [
-        255, 
-        255, 
-        0
+    "color8": [
+        53, 
+        19, 
+        7
     ], 
     "RotateSnap": 15, 
-    "TranslateSnap": 25, 
+    "color11": [
+        5, 
+        200, 
+        200
+    ], 
     "ScaleSnap": 0.1, 
     "color10": [
         50, 
