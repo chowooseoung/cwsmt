@@ -1,2 +1,2 @@
 # cwsmt
-* chowooseoung maya tools
+chowooseoung maya tools
