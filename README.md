@@ -1,2 +1,2 @@
-# maya
+# cwsmt
 * chowooseoung maya tools
