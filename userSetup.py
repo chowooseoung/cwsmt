@@ -9,11 +9,15 @@ import os
 import sys
 
 inhouse_shelf = "inhouse"
+custom_shelf = "Custom"
 
 def create_inhouse_shelf():
     
     shelf_layout = pm.mel.globals["gShelfTopLevel"]
     last_selected_tab = pm.tabLayout(shelf_layout, query=True, selectTab=True)
+
+    # Custom shelf edit
+    
 
     # remove inhouse shelf
     tabs = pm.tabLayout(shelf_layout, query=True, childArray=True)
@@ -24,7 +28,7 @@ def create_inhouse_shelf():
     inhouse = pm.shelfLayout(inhouse_shelf, parent=shelf_layout)
     tabs = pm.tabLayout(shelf_layout, query=True, childArray=True)
     inhouse_index = tabs.index(inhouse.shortName()) + 1
-    custom_index = tabs.index("Custom") + 1
+    custom_index = tabs.index(custom_shelf) + 1
     pm.tabLayout(shelf_layout, edit=True, moveTab=(inhouse_index, custom_index+1))
 
     # re-select last tab
@@ -39,7 +43,7 @@ def create_inhouse_shelf():
         command='''from scriptsinterface import mayaui;mayaui.SiMaya.display("guest")''', 
         label="ScriptsInterface",
         sourceType="python",
-        annotation="inhouse scripts interface tool"
+        annotation="ScriptsInterface Tool"
     )
 
 pm.evalDeferred(create_inhouse_shelf, low=True)
