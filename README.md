@@ -1,2 +1,2 @@
 # maya
-* my maya toolset
+* chowooseoung maya tools
