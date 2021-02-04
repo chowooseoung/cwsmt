@@ -22,7 +22,7 @@
         "Label": "Moyang", 
         "Meta": {
             "doubleCommand": "", 
-            "command": "from moyang import main\nmain.Moyang.display()", 
+            "command": "from cwsmt.rig.moyang import main\nmain.Moyang.display()", 
             "sourceType": "python", 
             "overlayLabel": ""
         }, 

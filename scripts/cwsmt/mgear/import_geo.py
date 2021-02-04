@@ -1,9 +1,13 @@
-import os
+# -*- coding:utf-8 -*-
 
-import pymel.core as pm
-
+# mgear
 import mgear.shifter.custom_step as cstp
 
+# maya
+import pymel.core as pm
+
+# 
+import os
 
 class CustomShifterStep(cstp.customShifterMainStep):
 
