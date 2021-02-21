@@ -1,0 +1,15 @@
+{
+    "0": {
+        "Author": "", 
+        "Tags": [], 
+        "Label": "moyang", 
+        "Meta": {
+            "doubleCommand": "", 
+            "command": "from cwsmt.rig.moyang import main\nmain.Moyang.display()", 
+            "sourceType": "python", 
+            "overlayLabel": ""
+        }, 
+        "Annotation": "Requested : \nPurPose   : ", 
+        "Icon": ":/pythonFamily.png"
+    }
+}
