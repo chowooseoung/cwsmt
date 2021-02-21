@@ -93,7 +93,6 @@ class Moyang(QtWidgets.QMainWindow):
         self.options_dialog.accepted.connect(self.edit_options)
 
         self.vis_btn.clicked.connect(partial(self.controller_controller, ["v"]))
-        self.trs_btn.clicked.connect(partial(self.controller_controller, ["tx", "ty", "tz", "rx", "ry", "rz", "sx", "sy", "sz"]))
         self.t_btn.clicked.connect(partial(self.controller_controller, ["tx", "ty", "tz"]))
         self.tx_btn.clicked.connect(partial(self.controller_controller, ["tx"]))
         self.ty_btn.clicked.connect(partial(self.controller_controller, ["ty"]))
@@ -178,11 +177,6 @@ class Moyang(QtWidgets.QMainWindow):
             self.moyang_widget.show()
 
     def edit_options(self):
-        if self.options_dialog.world_radio.isChecked(): self.options["Space"] = "world"
-        if self.options_dialog.object_radio.isChecked(): self.options["Space"] = "object"
-        self.options["TranslateSnap"] = float(self.options_dialog.t_snap_line.text())
-        self.options["RotateSnap"] = float(self.options_dialog.r_snap_line.text())
-        self.options["ScaleSnap"] = float(self.options_dialog.s_snap_line.text())
         rows = self.options_dialog.mirror_table.rowCount()
         temp = dict()
         for row in range(rows):
@@ -258,12 +252,12 @@ class Moyang(QtWidgets.QMainWindow):
         self.custom_color_btn.setStyleSheet("")
 
         if self.options["Space"] == "world":
-            self.options_dialog.world_radio.setChecked(True)
+            self.world_radio.setChecked(True)
         else:
-            self.options_dialog.object_radio.setChecked(True)
-        self.options_dialog.t_snap_line.setText(str(self.options["TranslateSnap"]))
-        self.options_dialog.r_snap_line.setText(str(self.options["RotateSnap"]))
-        self.options_dialog.s_snap_line.setText(str(self.options["ScaleSnap"]))
+            self.object_radio.setChecked(True)
+        self.t_snap_line.setText(str(self.options["TranslateSnap"]))
+        self.r_snap_line.setText(str(self.options["RotateSnap"]))
+        self.s_snap_line.setText(str(self.options["ScaleSnap"]))
         self.options_dialog.mirror_table.clearContents()
         for index, key in enumerate(self.options["MirrorFilter"].keys()):
             left_item = QtWidgets.QTableWidgetItem(key)
@@ -286,12 +280,17 @@ class Moyang(QtWidgets.QMainWindow):
         self.options["color12"] = self.color12_btn.color
         self.options["color13"] = self.color13_btn.color
         self.options["color14"] = self.color14_btn.color
+
+        self.options["TranslateSnap"] = float(self.t_snap_line.text())
+        self.options["RotateSnap"] = float(self.r_snap_line.text())
+        self.options["ScaleSnap"] = float(self.s_snap_line.text())
+        if self.world_radio.isChecked(): self.options["Space"] = "world"
+        elif self.object_radio.isChecked(): self.options["Space"] = "object"
         option_path = os.path.join(os.path.dirname(__file__), "json", "options.json")
         with open(option_path, "w") as f:
             json.dump(self.options, f, indent=4)
 
     def options_window(self):
-        self.load_options()
         self.options_dialog.exec_()
 
     def set_custom_color(self):
@@ -324,25 +323,25 @@ class Moyang(QtWidgets.QMainWindow):
             
             reg = "".join(attrs)
             if "t" in reg:
-                if "x" in reg: x = self.options["TranslateSnap"]
+                if "x" in reg: x = float(self.t_snap_line.text())
                 else: x = 0
-                if "y" in reg: y = self.options["TranslateSnap"]
+                if "y" in reg: y = float(self.t_snap_line.text())
                 else: y = 0
-                if "z" in reg: z = self.options["TranslateSnap"]
+                if "z" in reg: z = float(self.t_snap_line.text())
                 else: z = 0
             if "r" in reg:
-                if "x" in reg: x = self.options["RotateSnap"]
+                if "x" in reg: x = float(self.r_snap_line.text())
                 else: x = 0
-                if "y" in reg: y = self.options["RotateSnap"]
+                if "y" in reg: y = float(self.r_snap_line.text())
                 else: y = 0
-                if "z" in reg: z = self.options["RotateSnap"]
+                if "z" in reg: z = float(self.r_snap_line.text())
                 else: z = 0
             if "s" in reg:
-                if "x" in reg: x = self.options["ScaleSnap"]
+                if "x" in reg: x = float(self.s_snap_line.text())
                 else: x = 0
-                if "y" in reg: y = self.options["ScaleSnap"]
+                if "y" in reg: y = float(self.s_snap_line.text())
                 else: y = 0
-                if "z" in reg: z = self.options["ScaleSnap"]
+                if "z" in reg: z = float(self.s_snap_line.text())
                 else: z = 0
 
             if mode == minus:
@@ -359,14 +358,14 @@ class Moyang(QtWidgets.QMainWindow):
                         cvs.append(shape.cv)
                 pm.select(cvs)
 
-                if self.options["Space"] == "object":
+                if self.object_radio.isChecked():
                     if "t" in reg:
                         pm.move((x, y, z), relative=True, objectSpace=True, worldSpaceDistance=True)
                     if "r" in reg:
                         pm.rotate((x, y, z), relative=True, objectSpace=True, objectCenterPivot=True, forceOrderXYZ=True)   
                     if "s" in reg:
                         pm.scale((1+x, 1+y, 1+z), relative=True, objectSpace=True, objectCenterPivot=True)
-                else:
+                elif self.world_radio.isChecked():
                     if "t" in reg:
                         pm.move((x, y, z), relative=True)
                     if "r" in reg:
@@ -552,7 +551,14 @@ class Moyang(QtWidgets.QMainWindow):
 
             fileName = importlib.import_module(name)
             reload(fileName)
-            return fileName.create_controller()
+            selected = pm.selected(type="transform")
+            if not selected:
+                return fileName.create_controller()
+            controllers = list()
+            for index, sel in enumerate(selected):
+                controllers.append(fileName.create_controller())
+                pm.matchTransform(controllers[index], sel)
+            return controllers
 
     def delete_controller(self):
         selected_item = self.listWidget.selectedItems()
@@ -601,6 +607,7 @@ class Moyang(QtWidgets.QMainWindow):
             controllers_colors = self.get_curve_color(selected_nodes)
                 
             new_controllers = list()
+            pm.select(clear=True)
             for i in selected_nodes:
                 new_controllers.append(self.load_controller())
             boundingbox = [
@@ -681,7 +688,8 @@ class Moyang(QtWidgets.QMainWindow):
 
             for index, con in enumerate(controllers):
                 dup_shapes = [ pm.PyNode(pm.duplicateCurve(x, constructionHistory=False)[0]) for x in con.getShapes() ]
-                pm.matchTransform(dup_shapes, rev_controllers[index])
+                pm.matchTransform(dup_shapes, con, rot=True)
+                pm.matchTransform(dup_shapes, rev_controllers[index], pos=True)
                 pm.parent(dup_shapes, rev_controllers[index])
 
                 select_cv = [ x.cv[:] for x in dup_shapes ]

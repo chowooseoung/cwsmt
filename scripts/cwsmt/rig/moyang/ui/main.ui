@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>297</width>
+    <width>311</width>
     <height>614</height>
    </rect>
   </property>
@@ -614,7 +614,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>297</width>
+     <width>311</width>
      <height>21</height>
     </rect>
    </property>
@@ -629,7 +629,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>297</width>
+     <width>311</width>
      <height>336</height>
     </size>
    </property>
@@ -652,42 +652,15 @@
     <number>4</number>
    </attribute>
    <widget class="QWidget" name="dockWidgetContents">
-    <layout class="QVBoxLayout" name="verticalLayout_3">
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
      <item>
-      <layout class="QGridLayout" name="gridLayout_2">
-       <property name="leftMargin">
-        <number>6</number>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string/>
        </property>
-       <property name="topMargin">
-        <number>6</number>
-       </property>
-       <property name="rightMargin">
-        <number>6</number>
-       </property>
-       <property name="bottomMargin">
-        <number>6</number>
-       </property>
-       <item row="0" column="0" rowspan="10">
-        <widget class="QGroupBox" name="groupBox">
-         <property name="title">
-          <string/>
-         </property>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <property name="leftMargin">
-           <number>4</number>
-          </property>
-          <property name="topMargin">
-           <number>4</number>
-          </property>
-          <property name="rightMargin">
-           <number>4</number>
-          </property>
-          <property name="bottomMargin">
-           <number>4</number>
-          </property>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
@@ -721,23 +694,10 @@
               </property>
              </widget>
             </item>
-            <item>
-             <spacer name="verticalSpacer_2">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
            </layout>
           </item>
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_4">
+           <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
              <widget class="QRadioButton" name="unlock_radio">
               <property name="text">
@@ -766,81 +726,113 @@
               </property>
              </widget>
             </item>
-            <item>
-             <spacer name="verticalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
            </layout>
           </item>
          </layout>
-        </widget>
-       </item>
-       <item row="0" column="1" colspan="3">
-        <widget class="QPushButton" name="vis_btn">
-         <property name="text">
-          <string>V</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1" rowspan="9">
-        <widget class="QPushButton" name="trs_btn">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>30</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="layoutDirection">
-          <enum>Qt::LeftToRight</enum>
-         </property>
-         <property name="text">
-          <string>T
-
-
-
-
-
-R
-
-
-
-
-
-S</string>
-         </property>
-         <property name="autoDefault">
-          <bool>false</bool>
-         </property>
-         <property name="default">
-          <bool>false</bool>
-         </property>
-         <property name="flat">
-          <bool>false</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="2" rowspan="3">
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>T snap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QLineEdit" name="t_snap_line">
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="text">
+             <string>5</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>R snap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="r_snap_line">
+            <property name="text">
+             <string>15</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>S snap</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="s_snap_line">
+            <property name="text">
+             <string>0.1</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Space</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <item>
+            <widget class="QRadioButton" name="world_radio">
+             <property name="text">
+              <string>world</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="object_radio">
+             <property name="text">
+              <string>object</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <layout class="QGridLayout" name="gridLayout_2">
+       <item row="0" column="0" rowspan="3">
         <widget class="QPushButton" name="t_btn">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -865,7 +857,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="1" column="3">
+       <item row="0" column="1">
         <widget class="QPushButton" name="tx_btn">
          <property name="maximumSize">
           <size>
@@ -878,7 +870,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="2" column="3">
+       <item row="1" column="1">
         <widget class="QPushButton" name="ty_btn">
          <property name="maximumSize">
           <size>
@@ -891,7 +883,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="3" column="3">
+       <item row="2" column="1">
         <widget class="QPushButton" name="tz_btn">
          <property name="maximumSize">
           <size>
@@ -904,7 +896,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="2" rowspan="3">
+       <item row="3" column="0" rowspan="3">
         <widget class="QPushButton" name="r_btn">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -929,7 +921,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="4" column="3">
+       <item row="3" column="1">
         <widget class="QPushButton" name="rx_btn">
          <property name="maximumSize">
           <size>
@@ -942,7 +934,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="5" column="3">
+       <item row="4" column="1">
         <widget class="QPushButton" name="ry_btn">
          <property name="maximumSize">
           <size>
@@ -955,7 +947,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="6" column="3">
+       <item row="5" column="1">
         <widget class="QPushButton" name="rz_btn">
          <property name="maximumSize">
           <size>
@@ -968,7 +960,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="2" rowspan="3">
+       <item row="6" column="0" rowspan="3">
         <widget class="QPushButton" name="s_btn">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
@@ -993,7 +985,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="7" column="3">
+       <item row="6" column="1">
         <widget class="QPushButton" name="sx_btn">
          <property name="maximumSize">
           <size>
@@ -1006,7 +998,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="8" column="3">
+       <item row="7" column="1">
         <widget class="QPushButton" name="sy_btn">
          <property name="maximumSize">
           <size>
@@ -1019,7 +1011,7 @@ S</string>
          </property>
         </widget>
        </item>
-       <item row="9" column="3">
+       <item row="8" column="1">
         <widget class="QPushButton" name="sz_btn">
          <property name="maximumSize">
           <size>
@@ -1029,6 +1021,19 @@ S</string>
          </property>
          <property name="text">
           <string>sz</string>
+         </property>
+        </widget>
+       </item>
+       <item row="9" column="0" colspan="2">
+        <widget class="QPushButton" name="vis_btn">
+         <property name="minimumSize">
+          <size>
+           <width>92</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="text">
+          <string>V</string>
          </property>
         </widget>
        </item>
