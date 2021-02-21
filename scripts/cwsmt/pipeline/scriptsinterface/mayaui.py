@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 
 from Qt import QtWidgets, QtCore, QtCompat
-from coreui import SiListView, SiTableView, SiModel, SiProxyModel, SiTableDelegate
+from coreui import SiTableView, SiModel, SiProxyModel, SiTableDelegate
 from mworkspacecontrol import MWorkspaceControl
 from functools import partial
 
@@ -51,15 +51,6 @@ class SiMayaTableView(SiTableView):
         elif (self.click_number == 2) & (self.index1 == self.index2):
             self.si_double_clicked.emit(self.index1)
         self.click_number = 0
-
-
-class SiMayaListView(SiListView):
-    
-    def __init__(self, parent=None):
-        super(SiMayaListView, self).__init__(parent=parent)
-    
-    def mousePressEvent(self, event):
-        super(SiMayaListView, self).mousePressEvent(event)
 
 
 class SiMaya(QtWidgets.QMainWindow):
@@ -120,6 +111,7 @@ class SiMaya(QtWidgets.QMainWindow):
         self.create_connections()
         self.load_json()
         self.create_workspace_control(permission=self.permission)
+        self.get_json()
 
     def create_widgets(self):
         self.ad = QtWidgets.QDialog()
@@ -129,44 +121,76 @@ class SiMaya(QtWidgets.QMainWindow):
         QtCompat.loadUi(os.path.join(os.path.dirname(__file__), "ui", "maya_item.ui"), self.ed)
 
         self.table_view = SiMayaTableView()
-        self.list_view = SiMayaListView()
         self.view_layout.addWidget(self.table_view)
-        self.view_layout.addWidget(self.list_view)
         self.proxy_model = SiProxyModel()
         self.proxy_model.setSourceModel(SiModel())
         self.table_view.setModel(self.proxy_model)
         self.table_view.setItemDelegate(SiTableDelegate())
-        self.table_view.setSortingEnabled(True)
         self.table_view.horizontalHeader().hideSection(4)
         self.table_view.horizontalHeader().hideSection(5)
-        self.table_view.setColumnWidth(1, 60)
+        # self.table_view.setColumnWidth(1, 60)
         
-        self.view_mode_action_group = QtWidgets.QActionGroup(self)
-        self.view_mode_action_group.addAction(self.action_table)
-        self.view_mode_action_group.addAction(self.action_list)
-        self.action_table.setChecked(True)
-        self.list_view.hide()
+        self.tags_view.hide()
 
+        self.json_list_action_group = QtWidgets.QActionGroup(self)
+        
         self.tags_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+
+        self.table_view.horizontalHeader().setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.icon_column_hide = QtWidgets.QAction("icon", self)
+        self.icon_column_hide.setCheckable(True)
+        self.label_column_hide = QtWidgets.QAction("label", self)
+        self.label_column_hide.setCheckable(True)
+        self.author_column_hide = QtWidgets.QAction("author", self)
+        self.author_column_hide.setCheckable(True)
+        self.tags_column_hide = QtWidgets.QAction("tags", self)
+        self.tags_column_hide.setCheckable(True)
+
 
         if self.permission == "guest":  
             self.table_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+            self.file_menu.addSeparator()
+            self.refresh_btn = QtWidgets.QAction("Refresh", self)
+            self.file_menu.addAction(self.refresh_btn)
             return
         self.add_item_action = QtWidgets.QAction("add item" , self)
         self.edit_item_action = QtWidgets.QAction("edit item", self)
         self.delete_item_action = QtWidgets.QAction("delete item", self)
+        
+        self.save_action_btn = QtWidgets.QAction("Save", self)
+        self.create_json_btn = QtWidgets.QAction("Create", self)
+        self.delete_json_btn = QtWidgets.QAction("Delete", self)
+        self.file_menu.addAction(self.save_action_btn)
+        self.file_menu.addSeparator()
+        self.file_menu.addAction(self.create_json_btn)
+        self.file_menu.addAction(self.delete_json_btn)
+
+        self.btn_layout = QtWidgets.QHBoxLayout()
+        self.centralwidget.layout().addLayout(self.btn_layout)
+
+        self.up_item_btn = QtWidgets.QPushButton("up")
+        self.down_item_btn = QtWidgets.QPushButton("down")
+        self.btn_layout.addWidget(self.up_item_btn)
+        self.btn_layout.addWidget(self.down_item_btn)
 
     def create_connections(self):
-        self.view_mode_action_group.triggered.connect(self.view_mode)
         self.load_action_btn.triggered.connect(self.load_json)
         self.search_line.textChanged.connect(self.proxy_model.setLineFilter)
         self.table_view.model().sourceModel().dataChanged.connect(self.setup_tags_view)
         self.tags_view.cellChanged.connect(self.tags_filter)
+        self.json_list_action_group.triggered.connect(self.load_json)
+        self.tags_view_action.triggered.connect(self.view_mode)
+        self.table_view.horizontalHeader().customContextMenuRequested.connect(self.table_view_header_menu)
+        self.icon_column_hide.triggered.connect(partial(self.hide_column))
+        self.label_column_hide.triggered.connect(partial(self.hide_column))
+        self.author_column_hide.triggered.connect(partial(self.hide_column))
+        self.tags_column_hide.triggered.connect(partial(self.hide_column))
 
         if self.permission == "guest":
             self.table_view.si_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="command"))
             self.table_view.si_double_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="doubleCommand"))
             self.table_view.si_shelf_clicked[QtCore.QModelIndex].connect(self.add_shelf_button)
+            self.refresh_btn.triggered.connect(self.get_json)
             return
         self.ad.accepted.connect(self.add_item)
         self.ed.accepted.connect(self.edit_item)
@@ -175,19 +199,49 @@ class SiMaya(QtWidgets.QMainWindow):
         self.add_item_action.triggered.connect(self.add_item_window)
         self.edit_item_action.triggered.connect(self.edit_item_window)
         self.delete_item_action.triggered.connect(self.delete_item)
-
+        self.create_json_btn.triggered.connect(self.create_json)
+        self.delete_json_btn.triggered.connect(self.delete_json)
+        self.up_item_btn.clicked.connect(self.up_item)
+        self.down_item_btn.clicked.connect(self.down_item)
+    
     def view_mode(self):
-        if self.action_table.isChecked(): 
-            self.table_view.show()
-            self.list_view.hide()
-        elif self.action_list.isChecked(): 
-            self.table_view.hide()
-            self.list_view.show()
+        if self.tags_view_action.isChecked(): 
+            self.tags_view.show()
+        else: 
+            self.tags_view.hide()
+
+    def hide_column(self):
+        if self.icon_column_hide.isChecked():
+            self.table_view.horizontalHeader().hideSection(0)
+        else:
+            self.table_view.horizontalHeader().showSection(0)
+
+        if self.label_column_hide.isChecked():
+            self.table_view.horizontalHeader().hideSection(1)
+        else:
+            self.table_view.horizontalHeader().showSection(1)
+        
+        if self.author_column_hide.isChecked():
+            self.table_view.horizontalHeader().hideSection(2)
+        else:
+            self.table_view.horizontalHeader().showSection(2)
+        
+        if self.tags_column_hide.isChecked():
+            self.table_view.horizontalHeader().hideSection(3)
+        else:
+            self.table_view.horizontalHeader().showSection(3)
+        
+    def table_view_header_menu(self, point):
+        context_menu = QtWidgets.QMenu()
+        context_menu.setTitle("Hide Column")
+        context_menu.addActions([self.icon_column_hide, self.label_column_hide, self.author_column_hide, self.tags_column_hide])
+        context_menu.exec_(self.table_view.mapToGlobal(point))
 
     def table_view_menu(self, point):
+        header_point = QtCore.QPoint(self.table_view.verticalHeader().width(), self.table_view.horizontalHeader().height())
         context_menu = QtWidgets.QMenu()
         context_menu.addActions([self.add_item_action, self.edit_item_action, self.delete_item_action])
-        context_menu.exec_(self.table_view.mapToGlobal(point))
+        context_menu.exec_(self.table_view.mapToGlobal(point + header_point))
 
     def setup_tags_view(self):
         self.tags_view.clearContents()
@@ -375,10 +429,88 @@ class SiMaya(QtWidgets.QMainWindow):
                 del colors[tag]
         model.setData(QtCore.QModelIndex(), colors, QtCore.Qt.UserRole)
 
-    def save_json(self):
+    def up_item(self):
         proxy_model = self.table_view.model()
         model = proxy_model.sourceModel()
-        with open(os.path.join(os.path.dirname(__file__), "json", "colors.json"), "w") as f: 
+        proxy_index = self.table_view.currentIndex()
+        if not proxy_index.isValid():
+            return 
+        source_index = proxy_model.mapToSource(proxy_index)
+
+        data = model.data(source_index, QtCore.Qt.UserRole+1)
+        if source_index.row() == 0:
+            row = 0
+        else:
+            row = source_index.row()-1
+        model.removeRows(source_index.row())
+        model.insertRows(row, data=data)
+
+        self.table_view.selectRow(row)
+
+    def down_item(self):
+        proxy_model = self.table_view.model()
+        model = proxy_model.sourceModel()
+        proxy_index = self.table_view.currentIndex()
+        if not proxy_index.isValid():
+            return 
+        source_index = proxy_model.mapToSource(proxy_index)
+
+        data = model.data(source_index, QtCore.Qt.UserRole+1)
+        count = model.rowCount()
+        if source_index.row() == count-1:
+            row = source_index.row()
+        else:
+            row = source_index.row()+1
+        model.removeRows(source_index.row())
+        model.insertRows(row, data=data)
+
+        self.table_view.selectRow(row)
+
+    def get_json(self):
+        orig_checked = self.json_list_action_group.checkedAction()
+        for action in self.json_list_action_group.actions():
+            self.file_menu.removeAction(action)
+            self.json_list_action_group.removeAction(action)
+        json_list = [x for x in os.listdir(os.path.join(os.path.dirname(__file__), "json")) if x.endswith("json")]
+        json_list = [x for x in json_list if "Colors" not in x]
+
+        for json in json_list:
+            act = QtWidgets.QAction(json.split(".")[0], self)
+            act.setCheckable(True)
+            self.json_list_action_group.addAction(act)
+            self.file_menu.addAction(act)
+        if orig_checked:    
+            for act in self.json_list_action_group.actions():
+                if act.text() == orig_checked.text():
+                    act.setChecked(True)
+        if self.json_list_action_group.actions():
+            if not self.json_list_action_group.checkedAction():
+                self.json_list_action_group.actions()[0].setChecked(True)
+        self.load_json()
+
+    def create_json(self):
+        directory = os.path.join(os.path.dirname(__file__), "json")
+        json_list = [x for x in os.listdir(os.path.join(os.path.dirname(__file__), "json")) if ".delete" not in x]
+        
+        input_dialog = QtWidgets.QInputDialog()
+        txt, result = input_dialog.getText(self, "Get name", "json name", QtWidgets.QLineEdit.Normal, "")
+        check = [x for x in json_list if x.split(".")[0] == txt]
+        if result and (not check):
+            with open(os.path.join(directory, "{0}.json".format(txt)), "w") as f: 
+                json.dump(dict(), f, indent=4)
+            with open(os.path.join(directory, "{0}Colors.json".format(txt)), "w") as f: 
+                json.dump(dict(), f, indent=4)
+        self.get_json()
+
+    def save_json(self):
+        if self.json_list_action_group.checkedAction():
+            name = self.json_list_action_group.checkedAction().text()
+        else:
+            return
+
+        proxy_model = self.table_view.model()
+        model = proxy_model.sourceModel()
+        with open(os.path.join(os.path.dirname(__file__), "json", "{0}Colors.json".format(name)), "w") as f: 
             json.dump(model.colors, f, indent=4)
         
         data = dict()
@@ -392,32 +524,26 @@ class SiMaya(QtWidgets.QMainWindow):
                 u"Annotation":temp[index][4], 
                 u"Meta":temp[index][5]
             }
-        with open(os.path.join(os.path.dirname(__file__), "json", "maya.json"), "w") as f: 
+        with open(os.path.join(os.path.dirname(__file__), "json", "{0}.json".format(name)), "w") as f: 
             json.dump(data, f, indent=4)
 
     def load_json(self):
         if not os.path.exists(os.path.join(os.path.dirname(__file__), "json")):
             os.mkdir(os.path.join(os.path.dirname(__file__), "json"))
 
-        if not os.path.exists(os.path.join(os.path.dirname(__file__), "json", "colors.json")):
-            with open(os.path.join(os.path.dirname(__file__), "json", "colors.json"), "w") as f: 
-                json.dump(dict(), f, indent=4)
-        
-        if not os.path.exists(os.path.join(os.path.dirname(__file__), "json", "maya.json")):
-            with open(os.path.join(os.path.dirname(__file__), "json", "maya.json"), "w") as f: 
-                json.dump(dict(), f, indent=4)
-
-        with open(os.path.join(os.path.dirname(__file__), "json", "colors.json")) as f: 
-            colors = json.load(f)
-        
-        with open(os.path.join(os.path.dirname(__file__), "json", "maya.json")) as f: 
-            scripts = json.load(f)
-
-
         proxy_model = self.table_view.model()
         model = proxy_model.sourceModel()
-        model.colors = colors
         model.reset()
+
+        if self.json_list_action_group.checkedAction():
+            name = self.json_list_action_group.checkedAction().text()
+        else:
+            return
+        with open(os.path.join(os.path.dirname(__file__), "json", "{0}Colors.json".format(name))) as f: 
+            colors = json.load(f)
+        with open(os.path.join(os.path.dirname(__file__), "json", "{0}.json".format(name))) as f: 
+            scripts = json.load(f)
+        model.colors = colors 
 
         for index in sorted([int(x) for x in scripts]):
             data = list()
@@ -429,6 +555,22 @@ class SiMaya(QtWidgets.QMainWindow):
             data.append(scripts[str(index)]["Meta"])
             model.insertRows(position=int(index), data=data)
         self.proxy_model.clearTagsFilters()
+
+    def delete_json(self):
+        name = self.json_list_action_group.checkedAction().text()
+        colors = os.path.join(os.path.dirname(__file__), "json", "{0}Colors.json".format(name))
+        scripts = os.path.join(os.path.dirname(__file__), "json", "{0}.json".format(name))
+
+        num = 0
+        while True:
+            if os.path.basename(scripts)+".delete"+str(num) not in os.listdir(os.path.join(os.path.dirname(__file__), "json")):
+                rename_scripts = scripts+".delete"+str(num)
+                rename_colors = colors+".delete"+str(num)
+                break
+            num += 1
+        os.rename(colors, rename_colors)
+        os.rename(scripts, rename_scripts)
+        self.get_json()
 
     def run_command(self, index, clickType):
         if not index.isValid():

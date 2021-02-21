@@ -20,20 +20,6 @@ class SiTableView(QtWidgets.QTableView):
         self.setSelectionBehavior(QtWidgets.QTableView.SelectRows)
 
 
-class SiListView(QtWidgets.QListView):
-
-    def __init__(self, parent=None):
-        super(SiListView, self).__init__(parent=parent)
-
-    def mouseReleaseEvent(self, event):
-        super(SiListView, self).mouseReleaseEvent(event)
-        event.ignore()
-
-    def mousePressEvent(self, event):
-        super(SiListView, self).mousePressEvent(event)
-        event.ignore()
-
-
 class SiModel(QtCore.QAbstractTableModel):
     
     __scripts = None
@@ -69,6 +55,7 @@ class SiModel(QtCore.QAbstractTableModel):
     def reset(self):
         self.beginResetModel()
         self.scripts = list() 
+        self.colors = dict()
         self.dataChanged.emit(QtCore.QModelIndex(), QtCore.QModelIndex())
         self.endResetModel()
 
@@ -87,6 +74,8 @@ class SiModel(QtCore.QAbstractTableModel):
             return self.colors
         if role == QtCore.Qt.ToolTipRole:
             return self.scripts[index.row()][4]
+        if role == QtCore.Qt.UserRole+1:
+            return self.scripts[index.row()]
 
     def setData(self, index, value, role=None):
         if role == QtCore.Qt.UserRole:
@@ -155,10 +144,7 @@ class SiProxyModel(QtCore.QSortFilterProxyModel):
         if isinstance(regex, unicode):
             if regex:
                 regex = regex.lower()
-                regex = re.compile(regex)
-                temp = list()
-                temp.append(regex)
-                self.line_filter = temp
+                self.line_filter = [re.compile(reg) for reg in regex.split(",") if reg]
             else:
                 self.line_filter = list()
         self.invalidateFilter()
