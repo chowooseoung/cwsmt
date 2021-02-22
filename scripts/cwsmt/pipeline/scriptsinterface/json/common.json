@@ -1,11 +1,14 @@
 {
     "0": {
-        "Author": "", 
-        "Tags": [], 
-        "Label": "moyang", 
+        "Author": "asdf", 
+        "Tags": [
+            "^^", 
+            "\ud55c\uae00"
+        ], 
+        "Label": "\ud55c\uae00^^", 
         "Meta": {
             "doubleCommand": "", 
-            "command": "from cwsmt.rig.moyang import main\nmain.Moyang.display()", 
+            "command": "", 
             "sourceType": "python", 
             "overlayLabel": ""
         }, 

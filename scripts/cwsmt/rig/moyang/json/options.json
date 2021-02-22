@@ -1,4 +1,9 @@
 {
+    "color5": [
+        255, 
+        255, 
+        0
+    ], 
     "MirrorFilter": {
         "L": "R", 
         "Left": "Right"
@@ -9,11 +14,6 @@
         0
     ], 
     "Space": "object", 
-    "color8": [
-        53, 
-        19, 
-        7
-    ], 
     "color6": [
         148, 
         0, 
@@ -64,10 +64,10 @@
         20, 
         147
     ], 
-    "color5": [
-        255, 
-        255, 
-        0
+    "color8": [
+        53, 
+        19, 
+        7
     ], 
     "RotateSnap": 15.0, 
     "TranslateSnap": 5.0, 

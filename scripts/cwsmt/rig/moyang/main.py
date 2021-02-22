@@ -1,5 +1,9 @@
 # -*-coding:utf-8 -*-
 
+from __future__ import division
+from __future__ import unicode_literals
+from __future__ import print_function
+
 from Qt import QtWidgets, QtCore, QtGui, QtCompat
 from mworkspacecontrol import MWorkspaceControl
 from functools import partial
@@ -296,7 +300,7 @@ class Moyang(QtWidgets.QMainWindow):
     def set_custom_color(self):
         color = QtWidgets.QColorDialog.getColor()
         if color.isValid():
-            print "red: {0}, green: {1}, blue: {2}".format(*color.getRgb())
+            print("red: {0}, green: {1}, blue: {2}".format(*color.getRgb()))
             self.custom_color_btn.setStyleSheet("background-color:rgb({0},{1},{2})".format(*color.getRgb()))
             self.custom_color_btn.color = color
             shapes = [ y for x in pm.selected(type="transform") for y in x.getShapes() ]

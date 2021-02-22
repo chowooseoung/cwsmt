@@ -1,3 +1,9 @@
+# -*- coding:utf-8 -*-
+
+from __future__ import divisioni
+from __future__ import unicode_literals
+from __future__ import print_function
+
 import maya.OpenMayaUI as omui
 import maya.cmds as mc
 import maya.mel as mel

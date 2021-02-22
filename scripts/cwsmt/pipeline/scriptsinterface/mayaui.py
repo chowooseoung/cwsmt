@@ -1,5 +1,9 @@
 # -*- coding:utf-8 -*-
 
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from Qt import QtWidgets, QtCore, QtCompat
 from coreui import SiTableView, SiModel, SiProxyModel, SiTableDelegate
 from mworkspacecontrol import MWorkspaceControl
@@ -8,6 +12,7 @@ from functools import partial
 import pymel.core as pm
 import json
 import os
+import tempfile
 
 
 class SiMayaTableView(SiTableView):
@@ -507,14 +512,20 @@ class SiMaya(QtWidgets.QMainWindow):
             name = self.json_list_action_group.checkedAction().text()
         else:
             return
-
+            
         proxy_model = self.table_view.model()
         model = proxy_model.sourceModel()
+        try:
+            with tempfile.TemporaryFile("w+t") as f: 
+                json.dump(model.colors, f, indent=4)
+        except Exception as ex:
+            print(ex)
+            raise Exception("Colors.json write error")
         with open(os.path.join(os.path.dirname(__file__), "json", "{0}Colors.json".format(name)), "w") as f: 
             json.dump(model.colors, f, indent=4)
         
         data = dict()
-        temp = model.scripts
+        temp = model.scripts 
         for index in range(len(temp)):
             data[unicode(index)] = {
                 u"Icon":temp[index][0], 
@@ -524,6 +535,12 @@ class SiMaya(QtWidgets.QMainWindow):
                 u"Annotation":temp[index][4], 
                 u"Meta":temp[index][5]
             }
+        try:
+            with tempfile.TemporaryFile("w+t") as f: 
+                json.dump(data, f, indent=4)
+        except Exception as ex:
+            print(ex)
+            raise Exception("Scripts.json write error")
         with open(os.path.join(os.path.dirname(__file__), "json", "{0}.json".format(name)), "w") as f: 
             json.dump(data, f, indent=4)
 
@@ -539,9 +556,9 @@ class SiMaya(QtWidgets.QMainWindow):
             name = self.json_list_action_group.checkedAction().text()
         else:
             return
-        with open(os.path.join(os.path.dirname(__file__), "json", "{0}Colors.json".format(name))) as f: 
+        with open(os.path.join(os.path.dirname(__file__), "json", "{0}Colors.json".format(name)), "r") as f: 
             colors = json.load(f)
-        with open(os.path.join(os.path.dirname(__file__), "json", "{0}.json".format(name))) as f: 
+        with open(os.path.join(os.path.dirname(__file__), "json", "{0}.json".format(name)), "r") as f: 
             scripts = json.load(f)
         model.colors = colors 
 

@@ -1,5 +1,9 @@
 # -*- coding:utf-8 -*-
 
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 from Qt import QtWidgets, QtCore, QtGui
 from functools import partial
 
@@ -397,7 +401,7 @@ class SiTags(QtWidgets.QWidget):
             color = self.colors[txt]
         else:
             color = random.randint(0, 360)
-            self.colors[txt] = color
+            self.colors[unicode(txt)] = color
         self.create_tag(name=txt, color=color)
         self.line.clear()
 
