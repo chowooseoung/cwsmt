@@ -138,6 +138,7 @@ class SiMaya(QtWidgets.QMainWindow):
         self.tags_view.hide()
 
         self.json_list_action_group = QtWidgets.QActionGroup(self)
+        self.shelves_action_group = QtWidgets.QActionGroup(self)
         
         self.tags_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
 
@@ -151,7 +152,6 @@ class SiMaya(QtWidgets.QMainWindow):
         self.tags_column_hide = QtWidgets.QAction("tags", self)
         self.tags_column_hide.setCheckable(True)
 
-
         if self.permission == "guest":  
             self.table_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
             self.file_menu.addSeparator()
@@ -164,11 +164,11 @@ class SiMaya(QtWidgets.QMainWindow):
         
         self.save_action_btn = QtWidgets.QAction("Save", self)
         self.create_json_btn = QtWidgets.QAction("Create", self)
-        self.delete_json_btn = QtWidgets.QAction("Delete", self)
+        # self.delete_json_btn = QtWidgets.QAction("Delete", self)
         self.file_menu.addAction(self.save_action_btn)
         self.file_menu.addSeparator()
         self.file_menu.addAction(self.create_json_btn)
-        self.file_menu.addAction(self.delete_json_btn)
+        # self.file_menu.addAction(self.delete_json_btn)
 
         self.btn_layout = QtWidgets.QHBoxLayout()
         self.centralwidget.layout().addLayout(self.btn_layout)
@@ -190,6 +190,9 @@ class SiMaya(QtWidgets.QMainWindow):
         self.label_column_hide.triggered.connect(partial(self.hide_column))
         self.author_column_hide.triggered.connect(partial(self.hide_column))
         self.tags_column_hide.triggered.connect(partial(self.hide_column))
+        self.shelves_upload_btn.triggered.connect(self.upload_shelves)
+        self.shelves_download_btn.triggered.connect(self.download_shelves)
+        self.shelves_refresh_btn.triggered.connect(self.get_shelves)
 
         if self.permission == "guest":
             self.table_view.si_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="command"))
@@ -205,7 +208,7 @@ class SiMaya(QtWidgets.QMainWindow):
         self.edit_item_action.triggered.connect(self.edit_item_window)
         self.delete_item_action.triggered.connect(self.delete_item)
         self.create_json_btn.triggered.connect(self.create_json)
-        self.delete_json_btn.triggered.connect(self.delete_json)
+        # self.delete_json_btn.triggered.connect(self.delete_json)
         self.up_item_btn.clicked.connect(self.up_item)
         self.down_item_btn.clicked.connect(self.down_item)
     
@@ -573,21 +576,21 @@ class SiMaya(QtWidgets.QMainWindow):
             model.insertRows(position=int(index), data=data)
         self.proxy_model.clearTagsFilters()
 
-    def delete_json(self):
-        name = self.json_list_action_group.checkedAction().text()
-        colors = os.path.join(os.path.dirname(__file__), "json", "{0}Colors.json".format(name))
-        scripts = os.path.join(os.path.dirname(__file__), "json", "{0}.json".format(name))
+    # def delete_json(self):
+    #     name = self.json_list_action_group.checkedAction().text()
+    #     colors = os.path.join(os.path.dirname(__file__), "json", "{0}Colors.json".format(name))
+    #     scripts = os.path.join(os.path.dirname(__file__), "json", "{0}.json".format(name))
 
-        num = 0
-        while True:
-            if os.path.basename(scripts)+".delete"+str(num) not in os.listdir(os.path.join(os.path.dirname(__file__), "json")):
-                rename_scripts = scripts+".delete"+str(num)
-                rename_colors = colors+".delete"+str(num)
-                break
-            num += 1
-        os.rename(colors, rename_colors)
-        os.rename(scripts, rename_scripts)
-        self.get_json()
+    #     num = 0
+    #     while True:
+    #         if os.path.basename(scripts)+".delete"+str(num) not in os.listdir(os.path.join(os.path.dirname(__file__), "json")):
+    #             rename_scripts = scripts+".delete"+str(num)
+    #             rename_colors = colors+".delete"+str(num)
+    #             break
+    #         num += 1
+    #     os.rename(colors, rename_colors)
+    #     os.rename(scripts, rename_scripts)
+    #     self.get_json()
 
     def run_command(self, index, clickType):
         if not index.isValid():
@@ -640,6 +643,70 @@ class SiMaya(QtWidgets.QMainWindow):
                         sourceType=source_type,
                         annotation=annotation)
                 
+    def get_shelves(self):
+        orig_checked = self.shelves_action_group.checkedAction()
+        for action in self.shelves_action_group.actions():
+            self.shelves_menu.removeAction(action)
+            self.shelves_action_group.removeAction(action)
+        shelves_list = [x for x in os.listdir(os.path.join(os.path.dirname(__file__), "shelves"))]
+
+        for shelf in shelves_list:
+            act = QtWidgets.QAction(shelf.split("shelf_")[1].split(".")[0], self)
+            act.setCheckable(True)
+            self.shelves_action_group.addAction(act)
+            self.shelves_menu.addAction(act)
+        if orig_checked:    
+            for act in self.shelves_action_group.actions():
+                if act.text() == orig_checked.text():
+                    act.setChecked(True)
+        if self.shelves_action_group.actions():
+            if not self.shelves_action_group.checkedAction():
+                self.shelves_action_group.actions()[0].setChecked(True)
+
+    def upload_shelves(self):
+        shelves_dir = os.path.join(os.path.dirname(__file__), "shelves")
+        if not os.path.exists(shelves_dir):
+            os.makedirs(shelves_dir)
+        result = pm.promptDialog(
+            title="shelf name",
+            message="Enter Name:",
+            button=["OK", "Cancel"],
+            defaultButton="OK",
+            cancelButton="Cancel",
+            dismissString="Cancel")
+        if result == "OK":
+            name = pm.promptDialog(query=True, text=True)
+            if name:
+                path = os.path.join(shelves_dir, "shelf_{0}.mel".format(name))
+                current_shelf = pm.tabLayout(pm.mel.globals["gShelfTopLevel"], query=True, selectTab=True)
+                if os.path.exists(path):
+                    result = pm.confirmDialog(title="Confirm", message="이미 같은이름의 shelf 가 존재합니다. 덮어씌우시겠습니까?", button=["Yes","No"], defaultButton="Yes", cancelButton="No", dismissString="No")
+                    if result == "Yes":
+                        pm.saveShelf(current_shelf, pm.internalVar(userShelfDir=True) + "shelf_{0}".format(name))
+                        shelf = pm.Path(pm.internalVar(userShelfDir=True) + "shelf_{0}.mel".format(name))
+                        shelf.move(path)
+                        self.get_shelves()
+                else:
+                    pm.saveShelf(current_shelf, pm.internalVar(userShelfDir=True) + "shelf_{0}".format(name))
+                    shelf = pm.Path(pm.internalVar(userShelfDir=True) + "shelf_{0}.mel".format(name))
+                    shelf.move(path)
+                    self.get_shelves()
+
+    def download_shelves(self):
+        name = self.shelves_action_group.checkedAction().text()
+        source = os.path.join(os.path.dirname(__file__), "shelves", "shelf_{0}.mel".format(name))
+        target = os.path.join(pm.internalVar(userShelfDir=True), "shelf_{0}.mel".format(name))
+        shelves = pm.tabLayout(pm.mel.globals["gShelfTopLevel"], query=True, childArray=True)
+        if os.path.exists(target):
+            result = pm.confirmDialog(title="Confirm", message="이미 같은이름의 shelf 가 존재합니다. 덮어씌우시겠습니까?", button=["Yes","No"], defaultButton="Yes", cancelButton="No", dismissString="No")
+            if result == "Yes":
+                pm.Path(source).copyfile(target)
+        else:
+            pm.Path(source).copyfile(target)
+        if name in shelves:
+            pm.deleteUI(pm.shelfLayout(name, query=True, fullPathName=True), layout=True)
+        pm.mel.loadNewShelf(pm.Path(target))
+
     def showEvent(self, event):
         super(SiMaya, self).showEvent(event)
         self.load_json()

@@ -112,8 +112,26 @@
     </property>
     <addaction name="tags_view_action"/>
    </widget>
+   <widget class="QMenu" name="shelves_menu">
+    <property name="title">
+     <string>shelves</string>
+    </property>
+    <addaction name="shelves_refresh_btn"/>
+    <addaction name="shelves_upload_btn"/>
+    <addaction name="shelves_download_btn"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="help_menu">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="open_folder_btn"/>
+    <addaction name="shelf_remove_btn"/>
+   </widget>
    <addaction name="file_menu"/>
    <addaction name="view_menu"/>
+   <addaction name="shelves_menu"/>
+   <addaction name="help_menu"/>
   </widget>
   <action name="save_action_btn">
    <property name="text">
@@ -165,6 +183,36 @@
    </property>
    <property name="text">
     <string>Tags</string>
+   </property>
+  </action>
+  <action name="shelves_refresh_btn">
+   <property name="text">
+    <string>Refresh</string>
+   </property>
+  </action>
+  <action name="shelves_upload_btn">
+   <property name="text">
+    <string>Upload</string>
+   </property>
+  </action>
+  <action name="shelves_download_btn">
+   <property name="text">
+    <string>Download</string>
+   </property>
+  </action>
+  <action name="actionRemove">
+   <property name="text">
+    <string>Remove</string>
+   </property>
+  </action>
+  <action name="open_folder_btn">
+   <property name="text">
+    <string>open folder</string>
+   </property>
+  </action>
+  <action name="shelf_remove_btn">
+   <property name="text">
+    <string>remove shelf</string>
    </property>
   </action>
  </widget>
