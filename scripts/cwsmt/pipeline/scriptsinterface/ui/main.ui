@@ -123,7 +123,7 @@
    </widget>
    <widget class="QMenu" name="help_menu">
     <property name="title">
-     <string>Help</string>
+     <string>etc.</string>
     </property>
     <addaction name="open_folder_btn"/>
     <addaction name="shelf_remove_btn"/>
