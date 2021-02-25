@@ -193,6 +193,7 @@ class SiMaya(QtWidgets.QMainWindow):
         self.shelves_upload_btn.triggered.connect(self.upload_shelves)
         self.shelves_download_btn.triggered.connect(self.download_shelves)
         self.shelves_refresh_btn.triggered.connect(self.get_shelves)
+        self.shelf_remove_btn.triggered.connect(self.remove_shelf)
 
         if self.permission == "guest":
             self.table_view.si_clicked[QtCore.QModelIndex].connect(partial(self.run_command, clickType="command"))
@@ -682,20 +683,20 @@ class SiMaya(QtWidgets.QMainWindow):
                 if os.path.exists(path):
                     result = pm.confirmDialog(title="Confirm", message="이미 같은이름의 shelf 가 존재합니다. 덮어씌우시겠습니까?", button=["Yes","No"], defaultButton="Yes", cancelButton="No", dismissString="No")
                     if result == "Yes":
-                        pm.saveShelf(current_shelf, pm.internalVar(userShelfDir=True) + "shelf_{0}".format(name))
-                        shelf = pm.Path(pm.internalVar(userShelfDir=True) + "shelf_{0}.mel".format(name))
+                        pm.saveShelf(current_shelf, os.path.join(pm.internalVar(userPrefDir=True), "shelves") + "/shelf_{0}".format(name))
+                        shelf = pm.Path(os.path.join(pm.internalVar(userPrefDir=True), "shelves", "shelf_{0}.mel".format(name)))
                         shelf.move(path)
                         self.get_shelves()
                 else:
-                    pm.saveShelf(current_shelf, pm.internalVar(userShelfDir=True) + "shelf_{0}".format(name))
-                    shelf = pm.Path(pm.internalVar(userShelfDir=True) + "shelf_{0}.mel".format(name))
+                    pm.saveShelf(current_shelf, os.path.join(pm.internalVar(userPrefDir=True), "shelves") + "/shelf_{0}".format(name))
+                    shelf = pm.Path(os.path.join(pm.internalVar(userPrefDir=True), "shelves", "shelf_{0}.mel".format(name)))
                     shelf.move(path)
                     self.get_shelves()
 
     def download_shelves(self):
         name = self.shelves_action_group.checkedAction().text()
         source = os.path.join(os.path.dirname(__file__), "shelves", "shelf_{0}.mel".format(name))
-        target = os.path.join(pm.internalVar(userShelfDir=True), "shelf_{0}.mel".format(name))
+        target = os.path.join(pm.internalVar(userPrefDir=True), "shelves", "shelf_{0}.mel".format(name))
         shelves = pm.tabLayout(pm.mel.globals["gShelfTopLevel"], query=True, childArray=True)
         if os.path.exists(target):
             result = pm.confirmDialog(title="Confirm", message="이미 같은이름의 shelf 가 존재합니다. 덮어씌우시겠습니까?", button=["Yes","No"], defaultButton="Yes", cancelButton="No", dismissString="No")
@@ -705,7 +706,13 @@ class SiMaya(QtWidgets.QMainWindow):
             pm.Path(source).copyfile(target)
         if name in shelves:
             pm.deleteUI(pm.shelfLayout(name, query=True, fullPathName=True), layout=True)
-        pm.mel.loadNewShelf(pm.Path(target))
+        pm.mel.loadNewShelf(os.path.join(pm.internalVar(userPrefDir=True), "shelves") + "/shelf_{0}".format(name))
+
+    def remove_shelf(self):
+        name = self.shelves_action_group.checkedAction().text()
+        source = os.path.join(os.path.dirname(__file__), "shelves", "shelf_{0}.mel".format(name))
+        os.remove(source)
+        self.get_shelves()
 
     def showEvent(self, event):
         super(SiMaya, self).showEvent(event)
