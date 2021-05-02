@@ -1,0 +1,62 @@
+{
+    "1": {
+        "Author": "chowooseoung", 
+        "Tags": [
+            "rigging"
+        ], 
+        "Label": "moyang", 
+        "Meta": {
+            "doubleCommand": "", 
+            "command": "from cwsmt.rig.moyang import main\nmain.Moyang.display()", 
+            "sourceType": "python", 
+            "overlayLabel": ""
+        }, 
+        "Annotation": "Requested : \nPurPose   : ", 
+        "Icon": ":/pythonFamily.png"
+    }, 
+    "0": {
+        "Author": "chowooseoung", 
+        "Tags": [
+            "clean"
+        ], 
+        "Label": "unknown plugins", 
+        "Meta": {
+            "doubleCommand": "", 
+            "command": "# maya\nimport pymel.core as pm\n\nplugins = pm.unknownPlugin(query=True, list=True)\nif plugins:\n    for plugin in plugins:\n        pm.unknownPlugin(plugin, remove=True)", 
+            "sourceType": "python", 
+            "overlayLabel": ""
+        }, 
+        "Annotation": "Requested : chowooseoung\nPurPose   : remove unknown plugins", 
+        "Icon": ":/pythonFamily.png"
+    }, 
+    "3": {
+        "Author": "chowooseoung", 
+        "Tags": [
+            "rigging"
+        ], 
+        "Label": "Renamer", 
+        "Meta": {
+            "doubleCommand": "", 
+            "command": "from cwsmt.rig.renamer import RenamerUI\nRenamerUI.display()", 
+            "sourceType": "python", 
+            "overlayLabel": ""
+        }, 
+        "Annotation": "Requested : renaming\nPurPose   : chowooseoung", 
+        "Icon": ":/pythonFamily.png"
+    }, 
+    "2": {
+        "Author": "chowooseoung", 
+        "Tags": [
+            "rigging"
+        ], 
+        "Label": "Neutral Pose", 
+        "Meta": {
+            "doubleCommand": "", 
+            "command": "from cwsmt.rig.neutralpose import NeutralPoseUI\nNeutralPoseUI.display()", 
+            "sourceType": "python", 
+            "overlayLabel": ""
+        }, 
+        "Annotation": "Requested : \nPurPose   : ", 
+        "Icon": ":/pythonFamily.png"
+    }
+}
